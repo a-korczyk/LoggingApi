@@ -1,9 +1,13 @@
+using LoggingApi.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddEndpointsApiExplorer()
+builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -13,6 +17,13 @@ builder.Services.AddSwaggerGen(options =>
         Description = "An ASP.NET Core Web API for logging logs",
     });
 });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    {
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
 
 var app = builder.Build();
 
