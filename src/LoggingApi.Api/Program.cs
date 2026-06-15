@@ -1,4 +1,8 @@
+using LoggingApi.Application.Abstractions.Repositories;
+using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Infrastructure;
+using LoggingApi.Infrastructure.Repositories;
+using LoggingApi.Infrastructure.Services.PasswordHasher;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
@@ -24,6 +28,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     });
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.Configure<PasswordHasherOptions>(
+    builder.Configuration.GetSection("PasswordHasher"));
 
 var app = builder.Build();
 

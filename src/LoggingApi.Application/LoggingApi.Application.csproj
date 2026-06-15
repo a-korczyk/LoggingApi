@@ -10,4 +10,8 @@
       <Folder Include="Features\Authentication\Commands\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\LoggingApi.Domain\LoggingApi.Domain.csproj" />
+    </ItemGroup>
+
 </Project>
