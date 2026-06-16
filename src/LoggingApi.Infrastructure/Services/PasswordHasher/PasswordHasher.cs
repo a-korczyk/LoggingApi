@@ -11,14 +11,14 @@ public class PasswordHasher(IOptions<PasswordHasherOptions> options) : IPassword
 {
     private readonly PasswordHasherOptions _options = options.Value;
 
-    public string HashPasswordAsync(string password, CancellationToken cancellationToken)
+    public string HashPassword(string password, CancellationToken cancellationToken)
     {
         byte[] salt = RandomNumberGenerator.GetBytes(_options.SaltSize);
         byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, _options.Iterations, _options.HashAlgorithmName, _options.HashSize);
         return $"{Convert.ToHexString(hash)}-{Convert.ToHexString(salt)}-{_options.Iterations}-{_options.HashAlgorithmName}-{_options.HashSize}";
     }
 
-    public bool VerifyPasswordAsync(string inputPassword, string hashedPassword, CancellationToken cancellationToken)
+    public bool VerifyPassword(string inputPassword, string hashedPassword, CancellationToken cancellationToken)
     {
         string[] parts = hashedPassword.Split("-");
         

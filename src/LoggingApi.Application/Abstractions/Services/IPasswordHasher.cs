@@ -11,7 +11,7 @@ public interface IPasswordHasher
     /// <param name="password">The password to hash.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The hashed password.</returns>
-    String HashPasswordAsync(string password, CancellationToken cancellationToken);
+    String HashPassword(string password, CancellationToken cancellationToken);
     
     /// <summary>
     /// Verifies whether the input password and hashed password are identical.
@@ -20,5 +20,5 @@ public interface IPasswordHasher
     /// <param name="hashedPassword">A hashed password.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    bool VerifyPasswordAsync(string inputPassword, string hashedPassword, CancellationToken cancellationToken);
+    bool VerifyPassword(string inputPassword, string hashedPassword, CancellationToken cancellationToken);
 }
