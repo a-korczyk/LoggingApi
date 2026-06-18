@@ -1,7 +1,9 @@
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Application.Features.Authentication.Commands;
 using LoggingApi.Infrastructure;
 using LoggingApi.Infrastructure.Repositories;
+using LoggingApi.Infrastructure.Services;
 using LoggingApi.Infrastructure.Services.PasswordHasher;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
@@ -29,7 +31,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     });
 
+builder.Services.AddMediatR(configuration =>
+{
+    configuration.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
+});
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.Configure<PasswordHasherOptions>(
     builder.Configuration.GetSection("PasswordHasher"));

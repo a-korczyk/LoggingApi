@@ -24,7 +24,7 @@ public sealed class RegisterCommandHandler(
 {
     public async Task<Result<RegisterResponse>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        if (await userRepository.GetByEmailAsync(request.Email, cancellationToken) == null)
+        if (await userRepository.GetByEmailAsync(request.Email, cancellationToken) != null)
             return UserErrors.EmailAlreadyExists;
         
         string hashedPassword = passwordHasher.HashPassword(request.Password, cancellationToken);
