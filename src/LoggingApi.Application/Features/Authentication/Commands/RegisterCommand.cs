@@ -1,3 +1,4 @@
+using FluentValidation;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Domain.Common;
@@ -46,3 +47,24 @@ public sealed class RegisterCommandHandler(
 /// </summary>
 public sealed record RegisterResponse(
     string JwtToken);
+
+/// <summary>
+/// Validates data when registering a new user.
+/// </summary>
+public sealed class RegisterValidator : AbstractValidator<RegisterCommand>
+{
+    public RegisterValidator()
+    {
+        // Email rules
+        RuleFor(command => command.Email)
+            .NotEmpty().WithMessage("Email must not be empty")
+            .MaximumLength(255).WithMessage("Email length must not exceed 255 characters")
+            .EmailAddress().WithMessage("Invalid email address format");
+        
+        // Password rules
+        RuleFor(command => command.Password)
+            .NotEmpty().WithMessage("Password must not be empty")
+            .MinimumLength(8).WithMessage("Password length must not be less than 8 characters")
+            .MaximumLength(255).WithMessage("Password length must not exceed 255 characters");
+    }
+}

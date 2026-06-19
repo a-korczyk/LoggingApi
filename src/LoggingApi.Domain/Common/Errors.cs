@@ -29,3 +29,25 @@ public static class UserErrors
             "Users.EmailAlreadyExists",
             "A user with the provided email already exists.");
 }
+
+/// <summary>
+/// Contains application errors related to validation.
+/// </summary>
+public static class ValidationErrors
+{
+    public static readonly Error Failed =
+        new(
+            "Validation.Failed",
+            "Validation failed.");
+}
+
+/// <summary>
+/// Contains application errors related to the server.
+/// </summary>
+public static class ServerErrors
+{
+    public static readonly Error InternalError =
+        new(
+            "Server.InternalError",
+            string.Empty);
+}

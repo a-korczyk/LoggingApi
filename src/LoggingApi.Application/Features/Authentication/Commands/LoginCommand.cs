@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.Validators;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Domain.Common;
@@ -46,3 +48,21 @@ public sealed class LoginCommandHandler(
 /// </summary>
 public sealed record LoginResponse(
     string JwtToken);
+
+/// <summary>
+/// Validates data provided when logging in.
+/// </summary>
+public sealed class LoginValidator : AbstractValidator<LoginCommand>
+{
+    public LoginValidator()
+    {
+        // Email rules
+        RuleFor(command => command.Email)
+            .NotEmpty().WithMessage("Email must not be empty")
+            .EmailAddress().WithMessage("Invalid email address format");
+        
+        // Password rules
+        RuleFor(command => command.Password)
+            .NotEmpty().WithMessage("Password must not be empty");
+    }
+}

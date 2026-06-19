@@ -1,10 +1,14 @@
+using FluentValidation;
+using LoggingApi.Api;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Application.Behaviors;
 using LoggingApi.Application.Features.Authentication.Commands;
 using LoggingApi.Infrastructure;
 using LoggingApi.Infrastructure.Repositories;
 using LoggingApi.Infrastructure.Services;
 using LoggingApi.Infrastructure.Services.PasswordHasher;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
@@ -31,10 +35,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     });
 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddMediatR(configuration =>
 {
     configuration.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
 });
+builder.Services.AddValidatorsFromAssembly(typeof(LoginCommand).Assembly);
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
@@ -54,6 +62,8 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty;
     });
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
