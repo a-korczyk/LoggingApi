@@ -33,10 +33,17 @@ public class AuthController(IMediator mediator) : ControllerBase
         if (response.IsFailure)
             return response.Error.Code switch
             {
-                "Users.InvalidCredentials" => Unauthorized(response.Error),
-                _ => BadRequest(response.Error)
+                "Users.InvalidCredentials" => Problem(
+                    statusCode: StatusCodes.Status401Unauthorized,
+                    title: response.Error.Code,
+                    detail: response.Error.Message),
+                
+                _ => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: response.Error.Code,
+                    detail: response.Error.Message)
             };
-        
+
         return Ok(response.Value);
     }
     
@@ -58,8 +65,15 @@ public class AuthController(IMediator mediator) : ControllerBase
         if (response.IsFailure)
             return response.Error.Code switch
             {
-                "Users.EmailAlreadyExists" => Conflict(response.Error),
-                _ => BadRequest(response.Error)
+                "Users.EmailAlreadyExists" => Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: response.Error.Code,
+                    detail: response.Error.Message),
+                
+                _ => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: response.Error.Code,
+                    detail: response.Error.Message)
             };
 
         return Created(string.Empty, response.Value);
