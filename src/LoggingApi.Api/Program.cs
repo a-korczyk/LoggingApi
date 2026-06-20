@@ -1,3 +1,4 @@
+using System.Text;
 using FluentValidation;
 using LoggingApi.Api;
 using LoggingApi.Application.Abstractions.Repositories;
@@ -9,7 +10,9 @@ using LoggingApi.Infrastructure.Repositories;
 using LoggingApi.Infrastructure.Services;
 using LoggingApi.Infrastructure.Services.PasswordHasher;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +29,43 @@ builder.Services.AddSwaggerGen(options =>
         Title = "LoggingApi API",
         Description = "An ASP.NET Core Web API for logging logs",
     });
+    
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT",
+    });
+
+    options.AddSecurityRequirement(document =>
+        new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        });
 });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateIssuer = true,
+            
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateAudience = true,
+            
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])),
+            
+            ValidateIssuerSigningKey = true,
+            
+            ValidateLifetime = true,
+        };
+    });
 
 builder.Services.AddAuthorization();
 
@@ -66,6 +105,8 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -3,6 +3,8 @@ using LoggingApi.Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace LoggingApi.Api.Controllers.v1;
 
@@ -24,8 +26,8 @@ public class AuthController(IMediator mediator) : ControllerBase
     [HttpPost("login")]
     [AllowAnonymous]
     [ProducesResponseType<LoginResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<Error>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginCommand request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(request, cancellationToken);
@@ -56,8 +58,8 @@ public class AuthController(IMediator mediator) : ControllerBase
     [HttpPost("register")]
     [AllowAnonymous]
     [ProducesResponseType<RegisterResponse>(StatusCodes.Status201Created)]
-    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<Error>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Register([FromBody] RegisterCommand request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(request, cancellationToken);
