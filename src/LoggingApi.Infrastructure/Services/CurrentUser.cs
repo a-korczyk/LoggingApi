@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.JsonWebTokens;
 
@@ -16,8 +17,8 @@ public sealed class CurrentUser(
     {
         string? userId = httpContextAccessor.HttpContext?
             .User
-            .FindFirstValue(JwtRegisteredClaimNames.Sub);
-
+            .FindFirstValue(ClaimTypes.NameIdentifier);
+        
         if (!Guid.TryParse(userId, out Guid parsedUserId))
             throw new UnauthorizedAccessException();
 

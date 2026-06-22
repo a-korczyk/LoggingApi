@@ -12,8 +12,8 @@ namespace LoggingApi.Application.Features.Logs.Queries;
 /// Retrieves a paginated collection of logs belonging to the currently authenticated user.
 /// </summary>
 public sealed record GetLogsQuery(
-    int Page,
-    int PageSize) : IRequest<Result<GetLogsResponse>>;
+    int? Page,
+    int? PageSize) : IRequest<Result<GetLogsResponse>>;
     
 /// <summary>
 /// Handles <see cref="GetLogsQuery"/> requests.
@@ -28,8 +28,8 @@ public sealed class GetLogsQueryHandler(
         IReadOnlyList<Log> logs = await logRepository.GetAsync(
             currentUser.GetUserId(),
             new Pagination(
-                request.Page,
-                request.PageSize),
+                request.Page ?? Pagination.DefaultPage,
+                request.PageSize ?? Pagination.DefaultPageSize),
             cancellationToken);
 
         IReadOnlyList<LogResponse> responseLogs = logs
@@ -60,10 +60,12 @@ public sealed class GetLogsValidator : AbstractValidator<GetLogsQuery>
     public GetLogsValidator()
     {
         RuleFor(query => query.Page)
-            .GreaterThan(0).WithMessage("Page must be greater than zero");
+            .GreaterThan(0).WithMessage("Page must be greater than zero")
+            .When(query => query.Page != null);
 
         RuleFor(query => query.PageSize)
             .GreaterThan(0).WithMessage("PageSize must be greater than zero")
-            .LessThan(101).WithMessage("PageSize must not be greater than 100");
+            .LessThan(101).WithMessage("PageSize must not be greater than 100")
+            .When(query => query.PageSize != null);
     }
 }

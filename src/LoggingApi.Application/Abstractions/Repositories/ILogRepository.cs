@@ -51,6 +51,10 @@ public interface ILogRepository
 /// <param name="Page">The page number to retrieve. The first page is 1.</param>
 /// <param name="PageSize">The maximum number of items to return per page. The default value is 20.</param>
 public sealed record Pagination(
-   int Page = 1,
-   int PageSize = 20);
+   int Page,
+   int PageSize)
+{
+   public const int DefaultPage = 1;
+   public const int DefaultPageSize = 20;
+};
    
