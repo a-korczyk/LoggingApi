@@ -27,10 +27,8 @@ public sealed class GetLogByIdQueryHandler(
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
         
-        if (log == null)
+        if (log == null || currentUser.GetUserId() != log.UserId)
             return LogErrors.LogWithIdNotFound;
-        if (currentUser.GetUserId() != log.UserId)
-            return LogErrors.Forbidden;
 
         return new LogResponse(
             log.Id,

@@ -55,7 +55,6 @@ public class LogsController(IMediator mediator) : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType<LogResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetLogById(
         [FromRoute] Guid id,
@@ -70,10 +69,6 @@ public class LogsController(IMediator mediator) : ControllerBase
             {
                 "Logs.LogWithIdNotFound" => Problem(
                     statusCode: StatusCodes.Status404NotFound,
-                    title: response.Error.Code,
-                    detail: response.Error.Message),
-                "Logs.Forbidden" => Problem(
-                    statusCode: StatusCodes.Status403Forbidden,
                     title: response.Error.Code,
                     detail: response.Error.Message),
                 _ => Problem(
@@ -122,7 +117,6 @@ public class LogsController(IMediator mediator) : ControllerBase
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateLog(
         [FromRoute] Guid id,
@@ -138,10 +132,6 @@ public class LogsController(IMediator mediator) : ControllerBase
             {
                 "Logs.LogWithIdNotFound" => Problem(
                     statusCode: StatusCodes.Status404NotFound,
-                    title: response.Error.Code,
-                    detail: response.Error.Message),
-                "Logs.Forbidden" => Problem(
-                    statusCode: StatusCodes.Status403Forbidden,
                     title: response.Error.Code,
                     detail: response.Error.Message),
                 _ => Problem(
@@ -162,7 +152,6 @@ public class LogsController(IMediator mediator) : ControllerBase
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteLog(
         [FromRoute] Guid id,
@@ -177,10 +166,6 @@ public class LogsController(IMediator mediator) : ControllerBase
             {
                 "Logs.LogWithIdNotFound" => Problem(
                     statusCode: StatusCodes.Status404NotFound,
-                    title: response.Error.Code,
-                    detail: response.Error.Message),
-                "Logs.Forbidden" => Problem(
-                    statusCode: StatusCodes.Status403Forbidden,
                     title: response.Error.Code,
                     detail: response.Error.Message),
                 _ => Problem(

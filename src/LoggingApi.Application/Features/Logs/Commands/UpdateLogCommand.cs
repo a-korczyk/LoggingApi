@@ -37,10 +37,8 @@ public sealed class UpdateLogCommandHandler(
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
         
-        if (log == null)
+        if (log == null || currentUser.GetUserId() != log.UserId)
             return LogErrors.LogWithIdNotFound;
-        if (currentUser.GetUserId() != log.UserId)
-            return LogErrors.Forbidden;
         
         log.Update(
             request.Status,

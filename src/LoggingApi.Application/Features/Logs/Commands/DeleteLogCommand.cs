@@ -27,10 +27,8 @@ public sealed class DeleteLogCommandHandler(
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
         
-        if (log == null)
+        if (log == null || currentUser.GetUserId() != log.UserId)
             return LogErrors.LogWithIdNotFound;
-        if (currentUser.GetUserId() != log.UserId)
-            return LogErrors.Forbidden;
         
         logRepository.Delete(log);
         await unitOfWork.SaveChangesAsync(cancellationToken);
