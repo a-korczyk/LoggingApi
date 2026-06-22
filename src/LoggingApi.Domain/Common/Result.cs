@@ -1,29 +1,61 @@
 namespace LoggingApi.Domain.Common;
 
 /// <summary>
-/// Implementation of the Result pattern.
-/// Represents the outcome of an operation that can succeed with a value or fail with an error.
+/// Non-generic implementation of the Result pattern.
+/// Represents the outcome of an operation that can succeed or fail with an error.
 /// </summary>
-/// <typeparam name="T">The type of the success value.</typeparam>
-/// <remarks>
-/// A successful result contains a value and <see cref="Error.None"/>.
-/// A failed result contains and error and no value.
-/// </remarks>
-public class Result<T>
+public class Result
 {
     public bool IsSuccess { get; }
     public bool IsFailure => !IsSuccess;
-    public T? Value { get; }
+    
+    /// <summary>
+    /// Gets the error associated with a failed result.
+    /// </summary>
     public Error Error { get; }
-
-    private Result(bool isSuccess, T? value, Error error)
+    
+    
+    protected Result(bool isSuccess, Error error)
     {
         if (isSuccess && error != Error.None || !isSuccess && error == Error.None)
             throw new ArgumentException("Invalid result state", nameof(error));
         
         IsSuccess = isSuccess;
-        Value = value;
         Error = error;
+    }
+
+    /// <summary>
+    /// Creates a successful result.
+    /// </summary>
+    public static Result Success() => new(true, Error.None);
+    
+    /// <summary>
+    /// Creates a failed result with the specified error.
+    /// </summary>
+    public static Result Failure(Error error) => new(false, error);
+
+    public static implicit operator Result(Error error) => Failure(error);
+}
+
+/// <summary>
+/// Generic implementation of the Result pattern.
+/// Represents the outcome of an operation that can succeed with a value or fail with an error.
+/// </summary>
+/// <typeparam name="T">The type of the success value.</typeparam>
+/// <remarks>
+/// A successful result contains a value and <see cref="Error.None"/>.
+/// A failed result contains an error and no value.
+/// </remarks>
+public sealed class Result<T> : Result
+{
+    /// <summary>
+    /// Gets the value of a successful result.
+    /// </summary>
+    public T? Value { get; }
+
+    private Result(bool isSuccess, T? value, Error error) : base(isSuccess, error)
+    {
+        Value = value;
     }
 
     /// <summary>
