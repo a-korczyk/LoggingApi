@@ -1,0 +1,91 @@
+using System.Text.Json;
+
+namespace LoggingApi.Domain.Entities;
+
+/// <summary>
+/// Represents a user-created log entry.
+/// </summary>
+public sealed class Log
+{
+    public Guid Id { get; private set; }
+    
+    public Guid UserId { get; private set; }
+    public User User { get; private set; }
+    
+    public LogStatus Status { get; private set; }
+    public LogType Type { get; private set; }
+    
+    public string Title { get; private set; }
+    
+    // Additional, user-defined fields.
+    public JsonDocument Data { get; private set; }
+    
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    // Required by EF Core
+    private Log() { }
+
+    public Log(
+        Guid userId,
+        User user,
+        LogType type,
+        string title,
+        JsonDocument data)
+    {
+        Id = Guid.NewGuid();
+        
+        UserId = userId;
+        User = user;
+
+        Status = LogStatus.Pending;
+        Type = type;
+        
+        Title = title;
+        Data = data;
+        
+        CreatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void Update(
+        LogStatus? status = null,
+        LogType? type = null,
+        string? title = null,
+        JsonDocument? data = null)
+    {
+        Status = status ?? Status;
+        Type = type ?? Type;
+        Title = title ?? Title;
+        Data = data ?? Data;
+    }
+}
+
+/// <summary>
+/// Represents the current state of a log.
+/// </summary>
+public enum LogStatus
+{
+    Pending,
+    InProgress,
+    Resolved,
+    
+    /// <summary>
+    /// The log remains unresolved.
+    /// </summary>
+    Unresolved,
+    
+    /// <summary>
+    /// Any work on this log has been canceled.
+    /// </summary>
+    Canceled
+}
+
+/// <summary>
+/// Represents the log's type.
+/// </summary>
+public enum LogType
+{
+    Info,
+    Warning,
+    Error,
+    CriticalError
+}

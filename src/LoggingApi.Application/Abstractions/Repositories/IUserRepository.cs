@@ -8,6 +8,16 @@ namespace LoggingApi.Application.Abstractions.Repositories;
 public interface IUserRepository
 {
     /// <summary>
+    /// Retrieves a user by their identifier.
+    /// </summary>
+    /// <param name="id">The identifier of the user.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    /// The user if found; otherwise <c>null</c>.
+    /// </returns>
+    Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    
+    /// <summary>
     /// Retrieves a user by their email address.
     /// </summary>
     /// <param name="email">The email to search for the user by.</param>

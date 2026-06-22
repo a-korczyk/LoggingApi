@@ -1,6 +1,7 @@
 using System.Text;
 using FluentValidation;
 using LoggingApi.Api;
+using LoggingApi.Application.Abstractions;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Application.Behaviors;
@@ -88,6 +89,10 @@ builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.Configure<PasswordHasherOptions>(
     builder.Configuration.GetSection("PasswordHasher"));
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

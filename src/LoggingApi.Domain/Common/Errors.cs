@@ -31,6 +31,22 @@ public static class UserErrors
 }
 
 /// <summary>
+/// Contains application errors related to logs.
+/// </summary>
+public sealed class LogErrors
+{
+    public static readonly Error LogWithIdNotFound =
+        new(
+            "Logs.LogWithIdNotFound",
+            "Couldn't find a log with the provided Id.");
+
+    public static readonly Error Forbidden =
+        new(
+            "Logs.Forbidden",
+            "You don't have access this log.");
+}
+
+/// <summary>
 /// Contains application errors related to validation.
 /// </summary>
 public static class ValidationErrors
