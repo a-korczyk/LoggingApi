@@ -12,4 +12,10 @@ public interface ICurrentUser
     /// </summary>
     /// <returns>The user's identifier.</returns>
     Guid GetUserId();
+
+    /// <summary>
+    /// Retrieves the user's email from their JWT token.
+    /// </summary>
+    /// <returns>The user's email.</returns>
+    string GetUserEmail();
 }

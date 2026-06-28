@@ -20,18 +20,29 @@ public sealed record DeleteLogCommand(
 public sealed class DeleteLogCommandHandler(
     ILogRepository logRepository,
     ICurrentUser currentUser,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ILogDigestQueue digestQueue)
     : IRequestHandler<DeleteLogCommand, Result>
 {
     public async Task<Result> Handle(DeleteLogCommand request, CancellationToken cancellationToken)
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
-        
+
         if (log == null || currentUser.GetUserId() != log.UserId)
             return LogErrors.LogWithIdNotFound;
-        
+
         logRepository.Delete(log);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        try {
+            digestQueue.Delete(
+                currentUser.GetUserEmail(),
+                log.Id);
+        }
+        catch (Exception ex)
+        {
+            await Console.Error.WriteLineAsync(ex.ToString());
+        }
         
         return Result.Success();
     }
