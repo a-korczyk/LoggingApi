@@ -3,6 +3,7 @@ using FluentValidation;
 using LoggingApi.Application.Abstractions;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Application.Abstractions.Services.Email;
 using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
 using MediatR;
@@ -27,12 +28,15 @@ public sealed class AddLogCommandHandler(
     ILogRepository logRepository,
     IUserRepository userRepository,
     ICurrentUser currentUser,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IEmailSender emailSender,
+    ILogDigestQueue digestQueue)
     : IRequestHandler<AddLogCommand, Result<AddLogResponse>>
 {
     public async Task<Result<AddLogResponse>> Handle(AddLogCommand request, CancellationToken cancellationToken)
     {
         Guid userId = currentUser.GetUserId();
+        string userEmail = currentUser.GetUserEmail();
         User? user = await userRepository.GetByIdAsync(userId, cancellationToken);
         
         Log log = new Log(
@@ -44,6 +48,31 @@ public sealed class AddLogCommandHandler(
         
         await logRepository.AddAsync(log, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            if (log.Type == LogType.CriticalError)
+                await emailSender.SendAsync(
+                    new(
+                        userEmail,
+                        null, 
+                        EmailTemplates.CriticalErrorLogged(log).Subject,
+                        EmailTemplates.CriticalErrorLogged(log).Body),
+                    cancellationToken);
+
+            digestQueue.Insert(
+                userEmail,
+                new LogDigestEntry(
+                    log.Id,
+                    log.Status,
+                    log.Type,
+                    log.Title)
+            );
+        }
+        catch (Exception ex)
+        {
+            await Console.Error.WriteLineAsync(ex.ToString());
+        }
 
         return new AddLogResponse(
             log.Id);

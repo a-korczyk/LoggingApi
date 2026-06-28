@@ -3,6 +3,7 @@ using FluentValidation;
 using LoggingApi.Application.Abstractions;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Application.Abstractions.Services.Email;
 using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
 using MediatR;
@@ -30,7 +31,9 @@ public sealed record UpdateLogCommand(
 public sealed class UpdateLogCommandHandler(
     ILogRepository logRepository,
     IUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    IEmailSender emailSender,
+    ILogDigestQueue digestQueue)
     : IRequestHandler<UpdateLogCommand, Result>
 {
     public async Task<Result> Handle(UpdateLogCommand request, CancellationToken cancellationToken)
@@ -40,13 +43,35 @@ public sealed class UpdateLogCommandHandler(
         if (log == null || currentUser.GetUserId() != log.UserId)
             return LogErrors.LogWithIdNotFound;
         
+        
         log.Update(
             request.Status,
             request.Type,
             request.Title,
             request.Data);
-
+        
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        
+        string userEmail = currentUser.GetUserEmail();
+        
+        if (log.Type == LogType.CriticalError && log.Status == LogStatus.Resolved)
+            await emailSender.SendAsync(
+                new EmailMessageDetails(
+                    userEmail,
+                    null,
+                    EmailTemplates.CriticalErrorResolved(log).Subject,
+                    EmailTemplates.CriticalErrorResolved(log).Body),
+                cancellationToken);
+        
+        digestQueue.Update(
+            userEmail,
+            new LogDigestEntry(
+                log.Id,
+                log.Status,
+                log.Type,
+                log.Title));
+
         
         return Result.Success();
     }

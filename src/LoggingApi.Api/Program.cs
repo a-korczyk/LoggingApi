@@ -4,17 +4,21 @@ using LoggingApi.Api;
 using LoggingApi.Application.Abstractions;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Application.Abstractions.Services.Email;
 using LoggingApi.Application.Behaviors;
 using LoggingApi.Application.Features.Authentication.Commands;
 using LoggingApi.Infrastructure;
 using LoggingApi.Infrastructure.Repositories;
 using LoggingApi.Infrastructure.Services;
+using LoggingApi.Infrastructure.Services.Logs.Digest;
 using LoggingApi.Infrastructure.Services.PasswordHasher;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using OllamaSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,6 +97,25 @@ builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.Configure<EmailOptions>(
+    builder.Configuration.GetSection(EmailOptions.SectionName));
+
+builder.Services.AddSingleton<ILogDigestQueue, LogDigestQueue>();
+builder.Services.AddHostedService<LogDigestBackgroundService>();
+builder.Services.AddSingleton<IChatClient>(_ =>
+    new OllamaApiClient(
+        new HttpClient
+        {
+            BaseAddress = new Uri(builder.Configuration["Ai:BaseAddress"]),
+            Timeout = TimeSpan.FromMinutes(5)
+        },
+        builder.Configuration["Ai:Model"]));
+
+builder.Services.AddSingleton<IChatService, ChatService>();
+builder.Services.AddSingleton<ILogDigestStatisticsBuilder, LogDigestStatisticsBuilder>();
+builder.Services.AddSingleton<ILogDigestEmailBuilder, LogDigestEmailBuilder>();
 
 var app = builder.Build();
 

@@ -24,4 +24,13 @@ public sealed class CurrentUser(
 
         return parsedUserId;
     }
+    
+    public string GetUserEmail()
+    {
+        string? userEmail = httpContextAccessor.HttpContext?
+            .User
+            .FindFirstValue(ClaimTypes.Email);
+        
+        return userEmail ?? throw new UnauthorizedAccessException();
+    }
 }
