@@ -1,8 +1,10 @@
 using LoggingApi.Application.Features.Logs.Commands;
-using LoggingApi.Application.Features.Logs.Queries;
+using LoggingApi.Contracts.Logs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GetLogByIdQuery = LoggingApi.Application.Features.Logs.Queries.GetLogByIdQuery;
+using GetLogsQuery = LoggingApi.Application.Features.Logs.Queries.GetLogsQuery;
 
 namespace LoggingApi.Api.Controllers.v1;
 
@@ -26,10 +28,15 @@ public class LogsController(IMediator mediator) : ControllerBase
     [ProducesResponseType<AddLogResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddLog(
-        [FromBody] AddLogCommand request,
+        [FromBody] AddLogRequest request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(request, cancellationToken);
+        var response = await mediator.Send(
+            new AddLogCommand(
+                request.Type,
+                request.Title,
+                request.Data),
+            cancellationToken);
 
         if (response.IsFailure)
             return response.Error.Code switch
@@ -90,10 +97,14 @@ public class LogsController(IMediator mediator) : ControllerBase
     [ProducesResponseType<GetLogsResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetLogs(
-        [FromQuery] GetLogsQuery request,
+        [FromQuery] GetLogsRequest request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(request, cancellationToken);
+        var response = await mediator.Send(
+            new GetLogsQuery(
+                request.Page,
+                request.PageSize), 
+            cancellationToken);
         
         if (response.IsFailure)
             return response.Error.Code switch
@@ -120,11 +131,16 @@ public class LogsController(IMediator mediator) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateLog(
         [FromRoute] Guid id,
-        [FromBody] UpdateLogCommand request,
+        [FromBody] UpdateLogRequest request,
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(
-            request with { Id = id }, 
+            new UpdateLogCommand(
+                id,
+                request.Status,
+                request.Type,
+                request.Title,
+                request.Data), 
             cancellationToken);
         
         if (response.IsFailure)

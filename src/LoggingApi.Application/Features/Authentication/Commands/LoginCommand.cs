@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Validators;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Contracts;
 using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
 using MediatR;
@@ -42,12 +43,6 @@ public sealed class LoginCommandHandler(
         return new LoginResponse(jwtToken);
     }
 }
-
-/// <summary>
-/// Response returned after a successful login.
-/// </summary>
-public sealed record LoginResponse(
-    string JwtToken);
 
 /// <summary>
 /// Validates data provided when logging in.

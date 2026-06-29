@@ -1,4 +1,5 @@
 using LoggingApi.Application.Features.Authentication.Commands;
+using LoggingApi.Contracts;
 using LoggingApi.Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -28,9 +29,15 @@ public class AuthController(IMediator mediator) : ControllerBase
     [ProducesResponseType<LoginResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginCommand request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Login(
+        [FromBody] LoginRequest request,
+        CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(request, cancellationToken);
+        var response = await mediator.Send(
+            new LoginCommand(
+                request.Email,
+                request.Password),
+            cancellationToken);
 
         if (response.IsFailure)
             return response.Error.Code switch
@@ -60,9 +67,15 @@ public class AuthController(IMediator mediator) : ControllerBase
     [ProducesResponseType<RegisterResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Register([FromBody] RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Register(
+        [FromBody] RegisterRequest request,
+        CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(request, cancellationToken);
+        var response = await mediator.Send(
+            new RegisterCommand(
+                request.Email,
+                request.Password),
+            cancellationToken);
 
         if (response.IsFailure)
             return response.Error.Code switch

@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using FluentValidation;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Contracts.Logs;
 using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
 using MediatR;
@@ -45,12 +46,6 @@ public sealed class GetLogsQueryHandler(
         return new GetLogsResponse(responseLogs);
     }
 }
-
-/// <summary>
-/// Response on successful retrieval of all logs associated with a user.
-/// </summary>
-public sealed record GetLogsResponse(
-    IReadOnlyList<LogResponse> Logs);
 
 /// <summary>
 /// Validates <see cref="GetLogsQuery"/> requests.

@@ -1,6 +1,7 @@
 using FluentValidation;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Contracts;
 using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
 using MediatR;
@@ -42,11 +43,6 @@ public sealed class RegisterCommandHandler(
     }
 }
 
-/// <summary>
-/// Response returned after a successful registration.
-/// </summary>
-public sealed record RegisterResponse(
-    string JwtToken);
 
 /// <summary>
 /// Validates data when registering a new user.

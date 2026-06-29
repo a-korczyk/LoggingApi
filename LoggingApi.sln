@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggingApi.Domain", "src\Lo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggingApi.Blazor", "src\LoggingApi.Blazor\LoggingApi.Blazor.csproj", "{570C1C78-4507-4372-B402-5C201563D675}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggingApi.Contracts", "src\LoggingApi.Contracts\LoggingApi.Contracts.csproj", "{BAA0C93C-DDFD-431D-9182-4BEA1FD9CA3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{570C1C78-4507-4372-B402-5C201563D675}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{570C1C78-4507-4372-B402-5C201563D675}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{570C1C78-4507-4372-B402-5C201563D675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAA0C93C-DDFD-431D-9182-4BEA1FD9CA3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAA0C93C-DDFD-431D-9182-4BEA1FD9CA3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAA0C93C-DDFD-431D-9182-4BEA1FD9CA3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAA0C93C-DDFD-431D-9182-4BEA1FD9CA3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

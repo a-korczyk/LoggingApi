@@ -4,6 +4,7 @@ using LoggingApi.Application.Abstractions;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Application.Abstractions.Services.Email;
+using LoggingApi.Contracts.Logs;
 using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
 using MediatR;
@@ -78,13 +79,6 @@ public sealed class AddLogCommandHandler(
             log.Id);
     }
 }
-
-/// <summary>
-/// Response after a log has been successfully added.
-/// </summary>
-/// <param name="Id">The identifier of the newly added log.</param>
-public sealed record AddLogResponse(
-    Guid Id);
 
 /// <summary>
 /// Validates <see cref="AddLogCommand"/> requests.

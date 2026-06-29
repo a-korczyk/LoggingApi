@@ -2,6 +2,7 @@ using System.Text.Json;
 using FluentValidation;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Contracts.Logs;
 using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
 using MediatR;
@@ -39,17 +40,6 @@ public sealed class GetLogByIdQueryHandler(
             log.CreatedAt);
     }
 }
-
-/// <summary>
-/// The response representation of an individual log.
-/// </summary>
-public sealed record LogResponse(
-    Guid Id,
-    LogStatus Status,
-    LogType Type,
-    string Title,
-    JsonDocument Data,
-    DateTimeOffset CreatedAt);
 
 /// <summary>
 /// Validates <see cref="GetLogByIdQuery"/> requests.
