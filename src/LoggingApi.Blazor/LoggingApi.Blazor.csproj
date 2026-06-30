@@ -19,4 +19,9 @@
       <ProjectReference Include="..\LoggingApi.Contracts\LoggingApi.Contracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Blazor.LocalStorage" Version="10.0.0" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
+    </ItemGroup>
+
 </Project>

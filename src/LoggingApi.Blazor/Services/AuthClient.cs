@@ -1,7 +1,7 @@
 using LoggingApi.Contracts;
 using LoggingApi.Contracts.Logs;
 
-namespace LoggingApi.Blazor.Services;
+namespace LoggingApi.Blazor.Services.Authentication;
 
 /// <summary>
 /// Provides methods for interacting with the authentication endpoints of LoggingApi.
