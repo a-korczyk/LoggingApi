@@ -1,10 +1,17 @@
 using LoggingApi.Blazor.Components;
+using LoggingApi.Blazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddHttpClient<AuthClient>(client =>
+    client.BaseAddress = new Uri(builder.Configuration["Api:BaseAddress"]));
+
+builder.Services.AddHttpClient<LogsClient>(client =>
+    client.BaseAddress = new Uri(builder.Configuration["Api:BaseAddress"]));
 
 var app = builder.Build();
 

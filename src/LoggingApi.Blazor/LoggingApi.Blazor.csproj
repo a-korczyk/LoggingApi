@@ -15,4 +15,8 @@
       <_ContentIncludedByDefault Remove="Components\Pages\Weather.razor" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\LoggingApi.Contracts\LoggingApi.Contracts.csproj" />
+    </ItemGroup>
+
 </Project>
