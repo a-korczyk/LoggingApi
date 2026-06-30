@@ -1,0 +1,107 @@
+@page "/register"
+@using System.ComponentModel.DataAnnotations
+@using LoggingApi.Blazor.Services
+@using LoggingApi.Contracts
+@implements IDisposable
+@inject NavigationManager Navigation
+@inject AuthClient AuthClient
+<h3>Register</h3>
+
+<EditForm Model="_registerModel" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    
+    <div>
+        <label for="email">Email</label>
+        <InputText 
+            id="email"
+            placeholder="Email"
+            autocomplete="email"
+            @bind-Value="_registerModel.Email"/>
+    </div>
+    
+    <div>
+        <label for="password">Password</label>
+        <InputText 
+            id="password"
+            type="password"
+            placeholder="Password"
+            autocomplete="new-password"
+            @bind-Value="_registerModel.Password"/>
+    </div>
+    
+    <div>
+        <button 
+            type="submit"
+            disabled="@(_processing)">
+            Register 
+        </button>
+    </div>
+    <div hidden="@(_registerFailed is not true)">
+        Registration failed!<br />
+        @_errorMessage
+    </div>
+</EditForm>
+
+@code {
+    private readonly RegisterModel _registerModel = new();
+    private readonly CancellationTokenSource _cts = new();
+    
+    private bool _processing = false;
+    private bool _registerFailed = false;
+    private string? _errorMessage;
+    
+    /// <summary>
+    /// Handles user registration when the register form is submitted.
+    /// </summary>
+    private async Task HandleRegister()
+    {
+        _processing = true;
+        _registerFailed = false;
+        _errorMessage = null;
+
+        try
+        {
+            using var response = await AuthClient.RegisterAsync(
+                new RegisterRequest(
+                    _registerModel.Email,
+                    _registerModel.Password),
+                _cts.Token);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _registerFailed = true;
+                _errorMessage = await response.Content.ReadAsStringAsync(_cts.Token);
+                return;
+            }
+
+            Navigation.NavigateTo("/");
+        }
+        finally
+        {
+            _processing = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+    
+    /// <summary>
+    /// Model used to capture user registration input.
+    /// </summary>
+    public sealed class RegisterModel 
+    {
+        [Required]
+        [EmailAddress]
+        [MaxLength(255)]
+        public string Email { get; set; } = "";
+        
+        [Required]
+        [MinLength(8)]
+        [MaxLength(255)]
+        public string Password { get; set; } = "";
+    }
+}

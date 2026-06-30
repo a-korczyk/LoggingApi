@@ -1,0 +1,104 @@
+@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using LoggingApi.Blazor.Services
+@using LoggingApi.Contracts
+@implements IDisposable
+@inject NavigationManager Navigation
+@inject AuthClient AuthClient
+<h3>Login</h3>
+
+<EditForm Model="_loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    
+    <div>
+        <label for="email">Email</label>
+        <InputText 
+            id="email"
+            placeholder="Email"
+            autocomplete="email"
+            @bind-Value="_loginModel.Email"/>
+    </div>
+    
+    <div>
+        <label for="password">Password</label>
+        <InputText 
+            id="password"
+            type="password"
+            placeholder="Password"
+            autocomplete="new-password"
+            @bind-Value="_loginModel.Password"/>
+    </div>
+    
+    <div>
+        <button 
+            type="submit"
+            disabled="@(_processing)">
+            Login 
+        </button>
+    </div>
+    <div hidden="@(_loginFailed is not true)">
+        Login failed!<br />
+        @_errorMessage
+    </div>
+</EditForm>
+
+@code {
+    private readonly LoginModel _loginModel = new();
+    private readonly CancellationTokenSource _cts = new();
+    
+    private bool _processing = false;
+    private bool _loginFailed = false;
+    private string? _errorMessage;
+    
+    /// <summary>
+    /// Handles user login when the login form is submitted.
+    /// </summary>
+    private async Task HandleLogin()
+    {
+        _processing = true;
+        _loginFailed = false;
+        _errorMessage = null;
+
+        try
+        {
+            using var response = await AuthClient.LoginAsync(
+                new LoginRequest(
+                    _loginModel.Email,
+                    _loginModel.Password),
+                _cts.Token);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _loginFailed = true;
+                _errorMessage = await response.Content.ReadAsStringAsync(_cts.Token);
+                return;
+            }
+
+            Navigation.NavigateTo("/");
+        }
+        finally
+        {
+            _processing = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+    
+    /// <summary>
+    /// Model used to capture user login input.
+    /// </summary>
+    public sealed class LoginModel 
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+        
+        [Required]
+        public string Password { get; set; } = "";
+    }
+}
