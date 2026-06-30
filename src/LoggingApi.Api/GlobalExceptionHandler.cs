@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using FluentValidation;
-using LoggingApi.Domain.Common;
+using LoggingApi.Domain;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 

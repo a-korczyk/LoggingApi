@@ -3,8 +3,8 @@ using FluentValidation;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Contracts.Logs;
-using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
+using LoggingApi.Shared;
 using MediatR;
 
 namespace LoggingApi.Application.Features.Logs.Queries;

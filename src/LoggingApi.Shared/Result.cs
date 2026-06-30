@@ -1,4 +1,4 @@
-namespace LoggingApi.Domain.Common;
+namespace LoggingApi.Shared;
 
 /// <summary>
 /// Non-generic implementation of the Result pattern.

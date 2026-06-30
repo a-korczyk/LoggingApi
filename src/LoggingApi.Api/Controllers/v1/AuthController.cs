@@ -1,6 +1,5 @@
 using LoggingApi.Application.Features.Authentication.Commands;
 using LoggingApi.Contracts;
-using LoggingApi.Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

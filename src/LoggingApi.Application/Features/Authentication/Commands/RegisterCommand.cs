@@ -2,8 +2,9 @@ using FluentValidation;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Contracts;
-using LoggingApi.Domain.Common;
+using LoggingApi.Domain;
 using LoggingApi.Domain.Entities;
+using LoggingApi.Shared;
 using MediatR;
 
 namespace LoggingApi.Application.Features.Authentication.Commands;
