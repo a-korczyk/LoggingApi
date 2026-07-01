@@ -9,11 +9,13 @@ using MediatR;
 namespace LoggingApi.Application.Features.Logs.Queries;
 
 /// <summary>
-/// Retrieves a paginated collection of logs belonging to the currently authenticated user.
+/// Retrieves a paginated collection of logs belonging to the currently
+/// authenticated user that match the optional filters.
 /// </summary>
 public sealed record GetLogsQuery(
     int? Page,
-    int? PageSize) : IRequest<Result<GetLogsResponse>>;
+    int? PageSize,
+    LogFilters? Filters) : IRequest<Result<GetLogsResponse>>;
     
 /// <summary>
 /// Handles <see cref="GetLogsQuery"/> requests.
@@ -51,6 +53,16 @@ public sealed class GetLogsQueryHandler(
 /// </summary>
 public sealed record GetLogsResponse(
     IReadOnlyList<LogResponse> Logs);
+
+/// <summary>
+/// Represents the filters to be used to select logs.
+/// </summary>
+public sealed record LogFilters(
+    IReadOnlyList<LogStatus>? Statuses,
+    IReadOnlyList<LogType>? Types,
+    string? TitleContains,
+    DateTimeOffset? CreatedBefore,
+    DateTimeOffset? CreatedAfter);
 
 /// <summary>
 /// Validates <see cref="GetLogsQuery"/> requests.
