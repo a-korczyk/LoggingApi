@@ -15,7 +15,11 @@ namespace LoggingApi.Application.Features.Logs.Queries;
 public sealed record GetLogsQuery(
     int? Page,
     int? PageSize,
-    LogFilters? Filters) : IRequest<Result<GetLogsResponse>>;
+    IReadOnlyList<LogStatus>? Statuses,
+    IReadOnlyList<LogType>? Types,
+    string? TitleContains,
+    DateTimeOffset? CreatedBefore,
+    DateTimeOffset? CreatedAfter) : IRequest<Result<GetLogsResponse>>;
     
 /// <summary>
 /// Handles <see cref="GetLogsQuery"/> requests.
@@ -32,7 +36,12 @@ public sealed class GetLogsQueryHandler(
             new Pagination(
                 request.Page ?? Pagination.DefaultPage,
                 request.PageSize ?? Pagination.DefaultPageSize),
-            request.Filters,
+            new LogFilters(
+                request.Statuses,
+                request.Types,
+                request.TitleContains,
+                request.CreatedBefore,
+                request.CreatedAfter),
             cancellationToken);
 
         IReadOnlyList<LogResponse> responseLogs = logs
@@ -54,16 +63,6 @@ public sealed class GetLogsQueryHandler(
 /// </summary>
 public sealed record GetLogsResponse(
     IReadOnlyList<LogResponse> Logs);
-
-/// <summary>
-/// Represents the filters to be used to select logs.
-/// </summary>
-public sealed record LogFilters(
-    IReadOnlyList<LogStatus>? Statuses,
-    IReadOnlyList<LogType>? Types,
-    string? TitleContains,
-    DateTimeOffset? CreatedBefore,
-    DateTimeOffset? CreatedAfter);
 
 /// <summary>
 /// Validates <see cref="GetLogsQuery"/> requests.

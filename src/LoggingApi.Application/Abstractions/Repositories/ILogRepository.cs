@@ -60,4 +60,13 @@ public sealed record Pagination(
    public const int DefaultPage = 1;
    public const int DefaultPageSize = 20;
 };
-   
+
+/// <summary>
+/// Represents the filters to be used to select logs.
+/// </summary>
+public sealed record LogFilters(
+   IReadOnlyList<LogStatus>? Statuses,
+   IReadOnlyList<LogType>? Types,
+   string? TitleContains,
+   DateTimeOffset? CreatedBefore,
+   DateTimeOffset? CreatedAfter);
