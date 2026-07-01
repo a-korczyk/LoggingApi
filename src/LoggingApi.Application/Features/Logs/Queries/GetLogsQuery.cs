@@ -32,6 +32,7 @@ public sealed class GetLogsQueryHandler(
             new Pagination(
                 request.Page ?? Pagination.DefaultPage,
                 request.PageSize ?? Pagination.DefaultPageSize),
+            request.Filters,
             cancellationToken);
 
         IReadOnlyList<LogResponse> responseLogs = logs
