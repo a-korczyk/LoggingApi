@@ -1,3 +1,4 @@
+using LoggingApi.Application.Features.Logs.Queries;
 using LoggingApi.Domain.Entities;
 
 namespace LoggingApi.Application.Abstractions.Repositories;
@@ -23,10 +24,11 @@ public interface ILogRepository
    Task<Log?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
    /// <summary>
-   /// Retrieves a paginated collection of logs associated with the specified user.
+   /// Retrieves a paginated and filtered collection of logs associated with the specified user.
    /// </summary>
    /// <param name="userId">The identifier of the user whose logs to retrieve.</param>
    /// <param name="pagination">The pagination settings.</param>
+   /// <param name="filters">The log filters.</param>
    /// <param name="cancellationToken">The cancellation token.</param>
    /// <returns>A read-only collection of logs that belong to the specified user.</returns>
    /// <remarks>
@@ -36,6 +38,7 @@ public interface ILogRepository
    Task<IReadOnlyList<Log>> GetAsync(
       Guid userId,
       Pagination pagination,
+      LogFilters? filters,
       CancellationToken cancellationToken);
    
    /// <summary>
@@ -57,4 +60,13 @@ public sealed record Pagination(
    public const int DefaultPage = 1;
    public const int DefaultPageSize = 20;
 };
-   
+
+/// <summary>
+/// Represents the filters to be used to select logs.
+/// </summary>
+public sealed record LogFilters(
+   IReadOnlyList<LogStatus>? Statuses,
+   IReadOnlyList<LogType>? Types,
+   string? TitleContains,
+   DateTimeOffset? CreatedBefore,
+   DateTimeOffset? CreatedAfter);

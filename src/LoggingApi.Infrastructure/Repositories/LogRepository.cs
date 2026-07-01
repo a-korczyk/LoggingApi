@@ -1,4 +1,5 @@
 using LoggingApi.Application.Abstractions.Repositories;
+using LoggingApi.Application.Features.Logs.Queries;
 using LoggingApi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,11 +27,32 @@ public sealed class LogRepository(ApplicationDbContext dbContext) : ILogReposito
     public async Task<IReadOnlyList<Log>> GetAsync(
         Guid userId,
         Pagination pagination,
+        LogFilters? filters,
         CancellationToken cancellationToken)
     {
-        return await dbContext.Logs
+        var query = dbContext.Logs
             .AsNoTracking()
-            .Where(x => x.UserId == userId)
+            .Where(x => x.UserId == userId);
+
+        if (filters is not null)
+        {
+            if (filters.Statuses is { Count: > 0})
+                query = query.Where(x => filters.Statuses.Contains(x.Status));
+
+            if (filters.Types is { Count: > 0})
+                query = query.Where(x => filters.Types.Contains(x.Type));
+        
+            if (!string.IsNullOrWhiteSpace(filters.TitleContains))
+                query = query.Where(x => x.Title.Contains(filters.TitleContains));
+        
+            if (filters.CreatedBefore is not null)
+                query = query.Where(x => x.CreatedAt <= filters.CreatedBefore.Value);
+        
+            if (filters.CreatedAfter is not null)
+                query = query.Where(x => x.CreatedAt >= filters.CreatedAfter.Value);
+        }
+        
+        return await query
             .OrderByDescending(x => x.CreatedAt)
             .Skip((pagination.Page - 1) * pagination.PageSize)
             .Take(pagination.PageSize)
