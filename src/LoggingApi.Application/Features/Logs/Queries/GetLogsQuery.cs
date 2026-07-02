@@ -79,5 +79,23 @@ public sealed class GetLogsValidator : AbstractValidator<GetLogsQuery>
             .GreaterThan(0).WithMessage("PageSize must be greater than zero")
             .LessThan(101).WithMessage("PageSize must not be greater than 100")
             .When(query => query.PageSize != null);
+
+        RuleForEach(query => query.Statuses)
+            .IsInEnum().WithMessage("Statuses must only contain LogStatus enum values.")
+            .When(query => query.Statuses != null);
+        
+        RuleForEach(query => query.Types)
+            .IsInEnum().WithMessage("Types must only contain LogType enum values.")
+            .When(query => query.Types != null);
+        
+        RuleFor(query => query.TitleContains)
+            .MaximumLength(255).WithMessage("TitleContains must not exceed 255 characters.")
+            .When(query => query.TitleContains != null);
+        
+        RuleFor(query => query)
+            .Must(query => query.CreatedBefore >= query.CreatedAfter)
+            .WithMessage("CreatedAfter must be before or equal to CreatedBefore.")
+            .When(query => 
+                query.CreatedBefore.HasValue && query.CreatedAfter.HasValue);
     }
 }
