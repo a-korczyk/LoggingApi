@@ -15,7 +15,7 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     
-    public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+    public DbSet<EmailVerificationRequest> EmailVerificationRequests => Set<EmailVerificationRequest>();
     
     public DbSet<Log> Logs => Set<Log>();
 

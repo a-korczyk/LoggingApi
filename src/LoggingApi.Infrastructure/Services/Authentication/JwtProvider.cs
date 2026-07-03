@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
-namespace LoggingApi.Infrastructure.Services;
+namespace LoggingApi.Infrastructure.Services.Authentication;
 
 /// <summary>
 /// Implementation of <see cref="IJwtProvider"/>

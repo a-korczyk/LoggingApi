@@ -1,10 +1,8 @@
 using System.Security.Claims;
 using LoggingApi.Application.Abstractions.Services;
-using LoggingApi.Domain.Entities;
 using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace LoggingApi.Infrastructure.Services;
+namespace LoggingApi.Infrastructure.Services.Authentication;
 
 /// <summary>
 /// Retrieves information about the currently authenticated user

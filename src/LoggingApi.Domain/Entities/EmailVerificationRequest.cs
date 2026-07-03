@@ -1,9 +1,9 @@
 namespace LoggingApi.Domain.Entities;
 
 /// <summary>
-/// Represents a user's email verification token.
+/// Represents a user's email verification request.
 /// </summary>
-public sealed class EmailVerificationToken
+public sealed class EmailVerificationRequest
 {
     public Guid UserId { get; private set; }
     public User User { get; private set; }
@@ -15,9 +15,9 @@ public sealed class EmailVerificationToken
     public DateTimeOffset ExpiresAt { get; private set; }
     
     // Required by EF Core
-    private EmailVerificationToken() { }
+    private EmailVerificationRequest() { }
 
-    public EmailVerificationToken(
+    public EmailVerificationRequest(
         Guid userId,
         User user,
         string tokenHash)

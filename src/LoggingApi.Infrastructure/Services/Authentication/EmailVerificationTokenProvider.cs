@@ -3,7 +3,7 @@ using System.Text;
 using LoggingApi.Application.Abstractions.Services;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace LoggingApi.Infrastructure.Services;
+namespace LoggingApi.Infrastructure.Services.Authentication;
 
 /// <inheritdoc/>
 public sealed class EmailVerificationTokenProvider() : IEmailVerificationTokenProvider

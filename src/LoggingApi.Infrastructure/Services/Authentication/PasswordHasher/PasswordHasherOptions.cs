@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using LoggingApi.Application.Abstractions.Services;
 
-namespace LoggingApi.Infrastructure.Services.PasswordHasher;
+namespace LoggingApi.Infrastructure.Services.Authentication.PasswordHasher;
 
 /// <summary>
 /// Configuration options for <see cref="IPasswordHasher"/>

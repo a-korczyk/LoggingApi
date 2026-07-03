@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace LoggingApi.Infrastructure.Configurations;
 
 /// <summary>
-/// Configures persistence for <see cref="EmailVerificationToken"/>.
+/// Configures persistence for <see cref="EmailVerificationRequest"/>.
 /// </summary>
-public class EmailVerificationTokenConfiguration
-    : IEntityTypeConfiguration<EmailVerificationToken>
+public class EmailVerificationRequestConfiguration
+    : IEntityTypeConfiguration<EmailVerificationRequest>
 {
     public void Configure(
-        EntityTypeBuilder<EmailVerificationToken> builder)
+        EntityTypeBuilder<EmailVerificationRequest> builder)
     {
         builder.HasKey(x => x.UserId);
 
         builder.HasOne(x => x.User)
             .WithOne()
-            .HasForeignKey<EmailVerificationToken>(x => x.UserId)
+            .HasForeignKey<EmailVerificationRequest>(x => x.UserId)
             .IsRequired();
 
         builder.Property(x => x.TokenHash)
