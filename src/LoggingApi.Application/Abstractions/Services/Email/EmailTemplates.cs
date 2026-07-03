@@ -84,4 +84,17 @@ public static class AuthEmailTemplates
              
              This email was generated automatically by LoggingApi.
              """);
+
+    public static readonly EmailTemplate EmailVerified =
+        new(
+            "Your Email Has Been Verified - LoggingApi",
+            """
+            # Your Email Has Been Verified
+            
+            Thank you for verifying your email address.
+            
+            Your LoggingApi account is now active and you can log in.
+            
+            This email was generated automatically by LoggingApi.
+            """);
 }

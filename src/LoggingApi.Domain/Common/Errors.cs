@@ -36,6 +36,27 @@ public static class UserErrors
 }
 
 /// <summary>
+/// Contains application errors related to email verification requests.
+/// </summary>
+public static class EmailVerificationRequestErrors
+{
+    public static readonly Error NotFound =
+        new(
+            "EmailVerificationRequests.NotFound",
+            "Couldn't find a request with the provided identifier.");
+    
+    public static readonly Error Invalid =
+        new(
+            "EmailVerificationRequests.Invalid",
+            "The provided token is invalid.");
+
+    public static readonly Error Expired =
+        new(
+            "EmailVerificationRequests.Expired",
+            "The provided token has expired.");
+}
+
+/// <summary>
 /// Contains application errors related to logs.
 /// </summary>
 public sealed class LogErrors
