@@ -61,3 +61,40 @@ public static class EmailTemplates
              This email was generated automatically by LoggingApi.
              """);
 }
+
+/// <summary>
+/// Provides predefined email templates for auth-related notifications.
+/// </summary>
+public static class AuthEmailTemplates
+{
+    public static EmailTemplate VerifyEmail(
+        string verificationUrl) =>
+        new(
+            "Verify Your Email - LoggingApi",
+            $"""
+             # Verify Your Email
+             
+             Thank you for creating your LoggingApi account.
+             
+             To activate your account, please verify your email by clicking the link below.
+             
+             {verificationUrl}
+             
+             If it wasn't you that created this account, you can safely ignore this email.
+             
+             This email was generated automatically by LoggingApi.
+             """);
+
+    public static readonly EmailTemplate EmailVerified =
+        new(
+            "Your Email Has Been Verified - LoggingApi",
+            """
+            # Your Email Has Been Verified
+            
+            Thank you for verifying your email address.
+            
+            Your LoggingApi account is now active and you can log in.
+            
+            This email was generated automatically by LoggingApi.
+            """);
+}

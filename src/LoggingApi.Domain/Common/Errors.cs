@@ -28,6 +28,32 @@ public static class UserErrors
         new(
             "Users.EmailAlreadyExists",
             "A user with the provided email already exists.");
+    
+    public static readonly Error UnverifiedEmail =
+        new(
+            "Users.UnverifiedEmail",
+            "The provided email is not verified.");
+}
+
+/// <summary>
+/// Contains application errors related to email verification requests.
+/// </summary>
+public static class EmailVerificationRequestErrors
+{
+    public static readonly Error NotFound =
+        new(
+            "EmailVerificationRequests.NotFound",
+            "Couldn't find a request with the provided identifier.");
+    
+    public static readonly Error Invalid =
+        new(
+            "EmailVerificationRequests.Invalid",
+            "The provided token is invalid.");
+
+    public static readonly Error Expired =
+        new(
+            "EmailVerificationRequests.Expired",
+            "The provided token has expired.");
 }
 
 /// <summary>

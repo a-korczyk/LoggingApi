@@ -15,6 +15,8 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     
+    public DbSet<EmailVerificationRequest> EmailVerificationRequests => Set<EmailVerificationRequest>();
+    
     public DbSet<Log> Logs => Set<Log>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

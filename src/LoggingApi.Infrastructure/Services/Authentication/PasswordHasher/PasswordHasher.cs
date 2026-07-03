@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using LoggingApi.Application.Abstractions.Services;
 using Microsoft.Extensions.Options;
 
-namespace LoggingApi.Infrastructure.Services.PasswordHasher;
+namespace LoggingApi.Infrastructure.Services.Authentication.PasswordHasher;
 
 /// <summary>
 /// Implementation of <see cref="IPasswordHasher"/>

@@ -4,8 +4,9 @@ using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Application.Abstractions.Services.Email;
 using LoggingApi.Infrastructure.Repositories;
 using LoggingApi.Infrastructure.Services;
+using LoggingApi.Infrastructure.Services.Authentication;
+using LoggingApi.Infrastructure.Services.Authentication.PasswordHasher;
 using LoggingApi.Infrastructure.Services.Logs.Digest;
-using LoggingApi.Infrastructure.Services.PasswordHasher;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +50,8 @@ public static class DependencyInjection
             configuration.GetSection("PasswordHasher"));
         services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<IEmailVerificationRequestService, EmailVerificationRequestService>();
+        services.AddScoped<IEmailVerificationRequestRepository, EmailVerificationRequestRepository>();
 
         // Logs
         services.AddScoped<ILogRepository, LogRepository>();

@@ -29,6 +29,8 @@ public sealed class LoginCommandHandler(
         User? user = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (user == null)
             return UserErrors.InvalidCredentials;
+        if (user.EmailConfirmed is false)
+            return UserErrors.UnverifiedEmail;
         
         bool isPasswordValid = passwordHasher.VerifyPassword(
             request.Password,
