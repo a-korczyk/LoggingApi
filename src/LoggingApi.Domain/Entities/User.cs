@@ -20,4 +20,6 @@ public sealed class User
         PasswordHash = passwordHash;
         EmailConfirmed = false;
     }
+    
+    public void ConfirmEmail() => EmailConfirmed = true;
 }
