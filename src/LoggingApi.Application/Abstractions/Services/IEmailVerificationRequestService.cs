@@ -5,7 +5,7 @@ namespace LoggingApi.Application.Abstractions.Services;
 /// <summary>
 /// Provides methods for generating and hashing email verification tokens.
 /// </summary>
-public interface IEmailVerificationTokenProvider
+public interface IEmailVerificationRequestService
 {
     /// <summary>
     /// Returns a cryptographically secure and URL-safe token.

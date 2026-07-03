@@ -28,6 +28,11 @@ public static class UserErrors
         new(
             "Users.EmailAlreadyExists",
             "A user with the provided email already exists.");
+    
+    public static readonly Error UnverifiedEmail =
+        new(
+            "Users.UnverifiedEmail",
+            "The provided email is not verified.");
 }
 
 /// <summary>

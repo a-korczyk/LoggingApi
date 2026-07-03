@@ -1,6 +1,7 @@
 using FluentValidation;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using LoggingApi.Application.Abstractions.Services.Email;
 using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
 using MediatR;
@@ -8,22 +9,24 @@ using MediatR;
 namespace LoggingApi.Application.Features.Authentication.Commands;
 
 /// <summary>
-/// Creates a new user and authenticates with the provided <c>Email</c> and <c>Password</c>.
+/// Creates a new user with the provided <c>Email</c> and <c>Password</c> and sends a verification email.
 /// </summary>
 public sealed record RegisterCommand(
     string Email,
-    string Password) : IRequest<Result<RegisterResponse>>;
+    string Password) : IRequest<Result>;
 
 /// <summary>
-/// Handles new user creation and returns a JWT token when the user is created.
+/// Handles new user creation and sending an email with a verification link.
 /// </summary>
 public sealed class RegisterCommandHandler(
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
-    IJwtProvider jwtProvider)
-    : IRequestHandler<RegisterCommand, Result<RegisterResponse>>
+    IEmailVerificationRequestService emailVerificationRequestService,
+    IEmailVerificationRequestRepository emailVerificationRequestRepository,
+    IEmailSender emailSender)
+    : IRequestHandler<RegisterCommand, Result>
 {
-    public async Task<Result<RegisterResponse>> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         if (await userRepository.GetByEmailAsync(request.Email, cancellationToken) != null)
             return UserErrors.EmailAlreadyExists;
@@ -36,17 +39,32 @@ public sealed class RegisterCommandHandler(
         
         await userRepository.AddAsync(user, cancellationToken);
         
-        string jwtToken = jwtProvider.CreateToken(user);
+        // Add email verification request
+        var token = emailVerificationRequestService.GenerateToken();
+        var hashedToken = emailVerificationRequestService.HashToken(token);
         
-        return new RegisterResponse(jwtToken);
+        await emailVerificationRequestRepository.AddAsync(
+            new(
+                user.Id,
+                user,
+                hashedToken),
+            cancellationToken);
+        
+        // Send email verification email.
+        var verificationUrl = $"http://localhost:8080/api/v1/auth/verify?userId={user.Id}&token={token}";
+        var emailTemplate = AuthEmailTemplates.VerifyEmail(verificationUrl);
+        
+        await emailSender.SendAsync(
+            new(
+                user.Email,
+                null,
+                emailTemplate.Subject,
+                emailTemplate.Body),
+            cancellationToken);
+
+        return Result.Success();
     }
 }
-
-/// <summary>
-/// Response returned after a successful registration.
-/// </summary>
-public sealed record RegisterResponse(
-    string JwtToken);
 
 /// <summary>
 /// Validates data when registering a new user.
