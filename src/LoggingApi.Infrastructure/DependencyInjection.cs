@@ -50,7 +50,7 @@ public static class DependencyInjection
             configuration.GetSection("PasswordHasher"));
         services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<ICurrentUser, CurrentUser>();
-        services.AddScoped<IEmailVerificationRequestService, EmailVerificationRequestService>();
+        services.AddScoped<ITokenGenerator, TokenGenerator>();
         services.AddScoped<IEmailVerificationRequestRepository, EmailVerificationRequestRepository>();
 
         // Logs

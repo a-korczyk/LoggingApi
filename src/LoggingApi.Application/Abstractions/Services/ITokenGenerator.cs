@@ -3,9 +3,9 @@ using LoggingApi.Domain.Entities;
 namespace LoggingApi.Application.Abstractions.Services;
 
 /// <summary>
-/// Provides methods for generating and hashing email verification tokens.
+/// Provides methods for generating and hashing cryptographically secure tokens.
 /// </summary>
-public interface IEmailVerificationRequestService
+public interface ITokenGenerator
 {
     /// <summary>
     /// Returns a cryptographically secure and URL-safe token.

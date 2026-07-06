@@ -21,7 +21,7 @@ public sealed record RegisterCommand(
 public sealed class RegisterCommandHandler(
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
-    IEmailVerificationRequestService emailVerificationRequestService,
+    ITokenGenerator tokenGenerator,
     IEmailVerificationRequestRepository emailVerificationRequestRepository,
     IEmailSender emailSender)
     : IRequestHandler<RegisterCommand, Result>
@@ -40,8 +40,8 @@ public sealed class RegisterCommandHandler(
         await userRepository.AddAsync(user, cancellationToken);
         
         // Add email verification request
-        var token = emailVerificationRequestService.GenerateToken();
-        var hashedToken = emailVerificationRequestService.HashToken(token);
+        var token = tokenGenerator.GenerateToken();
+        var hashedToken = tokenGenerator.HashToken(token);
         
         await emailVerificationRequestRepository.AddAsync(
             new(
