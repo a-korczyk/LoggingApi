@@ -24,5 +24,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         
         builder.Property(x => x.EmailConfirmed)
             .IsRequired();
+
+        builder.Property(x => x.TwoFactorSecret)
+            .HasMaxLength(255);
+
+        builder.Property(x => x.TwoFactorRecoveryCodes);
     }
 }
