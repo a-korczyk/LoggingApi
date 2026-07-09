@@ -25,6 +25,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.EmailConfirmed)
             .IsRequired();
 
+        builder.Property(x => x.TwoFactorEnabled)
+            .IsRequired();
+        
         builder.Property(x => x.TwoFactorSecret)
             .HasMaxLength(255);
 

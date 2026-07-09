@@ -12,6 +12,7 @@ public sealed class User
     public string PasswordHash { get; private set; } = string.Empty;
     public bool EmailConfirmed { get; private set; }
     
+    public bool TwoFactorEnabled { get; private set; }
     public string? TwoFactorSecret { get; private set; }
     public ISet<string>? TwoFactorRecoveryCodes { get; private set; }
     
@@ -24,9 +25,12 @@ public sealed class User
         Email = email;
         PasswordHash = passwordHash;
         EmailConfirmed = false;
+        TwoFactorEnabled = false;
     }
     
     public void ConfirmEmail() => EmailConfirmed = true;
+    
+    public void EnableTwoFactor() => TwoFactorEnabled = true;
     
     public void AddTwoFactorSecret(string secret) => TwoFactorSecret = secret;
     
