@@ -27,11 +27,12 @@ public sealed class TwoFactorChallenge
         User = user;
         TokenHash = tokenHash;
         TwoFactorChallengePurpose = twoFactorChallengePurpose;
-        ExpiresAt = DateTimeOffset.UtcNow;
+        ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(10);
     }
 }
 
 public enum TwoFactorChallengePurpose
 {
-    Login
+    Confirm2FaSetup = 0,
+    Login = 1,
 }
