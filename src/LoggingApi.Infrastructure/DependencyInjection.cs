@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OllamaSharp;
 using QRCoder;
+using StackExchange.Redis;
 
 namespace LoggingApi.Infrastructure;
 
@@ -27,6 +28,12 @@ public static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
         });
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
+        // Redis
+        services.AddSingleton<IConnectionMultiplexer>(_ => 
+            ConnectionMultiplexer.Connect(
+                configuration.GetConnectionString("Cache")
+                ?? throw new InvalidOperationException("Redis connection string not found.")));
         
         // AI chat
         services.AddSingleton<IChatClient>(_ =>
