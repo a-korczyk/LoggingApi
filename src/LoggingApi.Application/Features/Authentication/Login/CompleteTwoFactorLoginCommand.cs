@@ -43,7 +43,7 @@ public sealed class CompleteTwoFactorLoginCommandHandler(
         
         // Check user
         if (user is null)
-            return UserErrors.UserNotFound;
+            return UserErrors.NotFound;
 
         var isTotpCodeValid = twoFactorService.VerifyTotpCode(
             request.TotpCode,

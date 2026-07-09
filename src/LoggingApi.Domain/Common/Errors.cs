@@ -34,7 +34,7 @@ public static class UserErrors
             "Users.UnverifiedEmail",
             "The provided email is not verified.");
     
-    public static readonly Error UserNotFound = 
+    public static readonly Error NotFound = 
         new(
             "Users.UserNotFound",
             "This user couldn't be found.");
@@ -78,22 +78,22 @@ public static class TwoFactorErrors
 {
     public static readonly Error NoChallengeFound =
         new(
-            "TwoFactorErrors.NoChallengeFound",
+            "TwoFactor.NoChallengeFound",
             "No appropriate challenge could be found.");
 
     public static readonly Error ExpiredChallenge =
         new(
-            "TwoFactorErrors.ExpiredChallenge",
+            "TwoFactor.ExpiredChallenge",
             "The challenge has expired.");
 
     public static readonly Error InvalidToken =
         new(
-            "TwoFactorErrors.InvalidToken",
+            "TwoFactor.InvalidToken",
             "The provided token is invalid.");
 
     public static readonly Error InvalidTotpCode =
         new(
-            "TwoFactorErrors.InvalidTotpCode",
+            "TwoFactor.InvalidTotpCode",
             "The provided Totp code is invalid.");
 }
 

@@ -27,7 +27,7 @@ public sealed class SetupTwoFactorCommandHandler(
             cancellationToken);
 
         if (user is null)
-            return UserErrors.UserNotFound;
+            return UserErrors.NotFound;
         
         if (user.TwoFactorEnabled)
             return UserErrors.TwoFactorAlreadySetup;
