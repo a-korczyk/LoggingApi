@@ -12,6 +12,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OllamaSharp;
+using QRCoder;
 
 namespace LoggingApi.Infrastructure;
 
@@ -52,6 +53,10 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<ITokenGenerator, TokenGenerator>();
         services.AddScoped<IEmailVerificationRequestRepository, EmailVerificationRequestRepository>();
+        
+        // 2FA
+        services.AddScoped<ITwoFactorChallengeRepository, TwoFactorChallengeRepository>();
+        services.AddScoped<ITwoFactorService, TwoFactorService>();
 
         // Logs
         services.AddScoped<ILogRepository, LogRepository>();
