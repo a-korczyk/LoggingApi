@@ -1,6 +1,6 @@
 using FluentValidation;
 using LoggingApi.Application.Behaviors;
-using LoggingApi.Application.Features.Authentication.Commands;
+using LoggingApi.Application.Features.Authentication.Login;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
