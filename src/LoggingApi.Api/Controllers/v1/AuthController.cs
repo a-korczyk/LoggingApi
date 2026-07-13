@@ -1,4 +1,6 @@
 using LoggingApi.Application.Features.Authentication.Commands;
+using LoggingApi.Application.Features.Authentication.Login;
+using LoggingApi.Application.Features.Authentication.TwoFactor;
 using LoggingApi.Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -113,5 +115,116 @@ public class AuthController(IMediator mediator) : ControllerBase
             };
 
         return NoContent();
+    }
+
+    /// <summary>
+    /// Completes the login flow if the account has 2FA enabled.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("login/2fa")]
+    [AllowAnonymous]
+    [ProducesResponseType<CompleteTwoFactorLoginResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompleteTwoFactorLogin(
+        [FromBody] CompleteTwoFactorLoginCommand request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(request, cancellationToken);
+
+        if (response.IsFailure)
+            return response.Error.Code switch
+            {
+                "Users.NotFound" => Problem(
+                    statusCode: StatusCodes.Status404NotFound,
+                    title: response.Error.Code,
+                    detail: response.Error.Message),
+                "TwoFactor.NoChallengeFound" 
+                or "TwoFactor.ExpiredChallenge" 
+                or "TwoFactor.InvalidToken" 
+                or "TwoFactor.InvalidTotpCode" 
+                or _ => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: response.Error.Code,
+                    detail: response.Error.Message)
+            };
+
+        return Ok(response.Value);
+    }
+
+    /// <summary>
+    /// Starts the 2FA setup process.
+    /// </summary>
+    [HttpPost("2fa/setup")]
+    [Authorize]
+    [ProducesResponseType<SetupTwoFactorResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> SetupTwoFactor(
+        [FromBody] SetupTwoFactorCommand request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(request, cancellationToken);
+
+        if (response.IsFailure)
+            return response.Error.Code switch
+            {
+                "Users.NotFound" => Problem(
+                    statusCode: StatusCodes.Status404NotFound,
+                    title: response.Error.Code,
+                    detail: response.Error.Message),
+                "Users.TwoFactorAlreadySetup" => Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: response.Error.Code,
+                    detail: response.Error.Message),
+                _ => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: response.Error.Code,
+                    detail: response.Error.Message)
+            };
+
+        return Ok(response.Value);
+    }
+
+    /// <summary>
+    /// Completes the 2FA setup process.
+    /// </summary>
+    [HttpPost("2fa/confirm")]
+    [Authorize]
+    [ProducesResponseType<ConfirmTwoFactorResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ConfirmTwoFactor(
+        [FromBody] ConfirmTwoFactorCommand request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(request, cancellationToken);
+
+        if (response.IsFailure)
+            return response.Error.Code switch
+            {
+                "Users.NotFound" => Problem(
+                    statusCode: StatusCodes.Status404NotFound,
+                    title: response.Error.Code,
+                    detail: response.Error.Message),
+                "Users.TwoFactorAlreadySetup" or "Users.TwoFactorSetupNotRequested" => Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: response.Error.Code,
+                    detail: response.Error.Message),
+                "TwoFactor.NoChallengeFound" 
+                or "TwoFactor.ExpiredChallenge" 
+                or "TwoFactor.InvalidToken" 
+                or "TwoFactor.InvalidTotpCode" 
+                or _ => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: response.Error.Code,
+                    detail: response.Error.Message)
+            };
+
+        return Ok(response.Value);
     }
 }

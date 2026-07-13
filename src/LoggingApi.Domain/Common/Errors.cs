@@ -33,6 +33,21 @@ public static class UserErrors
         new(
             "Users.UnverifiedEmail",
             "The provided email is not verified.");
+    
+    public static readonly Error NotFound = 
+        new(
+            "Users.UserNotFound",
+            "This user couldn't be found.");
+    
+    public static readonly Error TwoFactorAlreadySetup = 
+        new(
+            "Users.TwoFactorAlreadySetup",
+            "Two factor authentication has already been setup.");
+    
+    public static readonly Error TwoFactorSetupNotRequested =
+        new(
+            "Users.TwoFactorSetupNotRequested",
+            "Two factor authentication has not been requested to be setup.");
 }
 
 /// <summary>
@@ -54,6 +69,32 @@ public static class EmailVerificationRequestErrors
         new(
             "EmailVerificationRequests.Expired",
             "The provided token has expired.");
+}
+
+/// <summary>
+/// Contains application errors related to 2FA.
+/// </summary>
+public static class TwoFactorErrors
+{
+    public static readonly Error NoChallengeFound =
+        new(
+            "TwoFactor.NoChallengeFound",
+            "No appropriate challenge could be found.");
+
+    public static readonly Error ExpiredChallenge =
+        new(
+            "TwoFactor.ExpiredChallenge",
+            "The challenge has expired.");
+
+    public static readonly Error InvalidToken =
+        new(
+            "TwoFactor.InvalidToken",
+            "The provided token is invalid.");
+
+    public static readonly Error InvalidTotpCode =
+        new(
+            "TwoFactor.InvalidTotpCode",
+            "The provided Totp code is invalid.");
 }
 
 /// <summary>

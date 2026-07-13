@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.WebUtilities;
 namespace LoggingApi.Infrastructure.Services.Authentication;
 
 /// <inheritdoc/>
-public sealed class EmailVerificationRequestService() : IEmailVerificationRequestService
+public sealed class TokenGenerator() : ITokenGenerator
 {
     public string GenerateToken()
     {

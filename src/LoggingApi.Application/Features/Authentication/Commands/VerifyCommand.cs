@@ -22,7 +22,7 @@ public sealed record VerifyCommand(
 /// Handles <see cref="VerifyCommand"/> requests.
 /// </summary>
 public sealed class VerifyCommandHandler(
-    IEmailVerificationRequestService emailVerificationRequestService,
+    ITokenGenerator tokenGenerator,
     IEmailVerificationRequestRepository emailVerificationRequestRepository,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
@@ -48,7 +48,7 @@ public sealed class VerifyCommandHandler(
         }
 
         // Check if tokens match
-        var hashedToken = emailVerificationRequestService.HashToken(request.Token);
+        var hashedToken = tokenGenerator.HashToken(request.Token);
         if (!CryptographicOperations.FixedTimeEquals(
                 Encoding.UTF8.GetBytes(hashedToken),
                 Encoding.UTF8.GetBytes(emailVerificationRequest.TokenHash)))

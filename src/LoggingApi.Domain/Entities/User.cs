@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace LoggingApi.Domain.Entities;
 
 /// <summary>
@@ -10,6 +12,10 @@ public sealed class User
     public string PasswordHash { get; private set; } = string.Empty;
     public bool EmailConfirmed { get; private set; }
     
+    public bool TwoFactorEnabled { get; private set; }
+    public string? TwoFactorSecret { get; private set; }
+    public IList<string>? TwoFactorRecoveryCodes { get; private set; }
+    
     // Required by EF Core
     private User() { }
 
@@ -19,7 +25,17 @@ public sealed class User
         Email = email;
         PasswordHash = passwordHash;
         EmailConfirmed = false;
+        TwoFactorEnabled = false;
     }
     
     public void ConfirmEmail() => EmailConfirmed = true;
+    
+    public void EnableTwoFactor() => TwoFactorEnabled = true;
+    
+    public void AddTwoFactorSecret(string secret) => TwoFactorSecret = secret;
+    
+    public void AddTwoFactorRecoveryCodes(IList<string> recoveryCodes) 
+        => TwoFactorRecoveryCodes = recoveryCodes;
+    public void RemoveTwoFactorRecoveryCode(string recoveryCode)
+        => TwoFactorRecoveryCodes?.Remove(recoveryCode);
 }

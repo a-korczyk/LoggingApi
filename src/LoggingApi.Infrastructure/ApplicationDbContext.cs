@@ -16,6 +16,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     
     public DbSet<EmailVerificationRequest> EmailVerificationRequests => Set<EmailVerificationRequest>();
+
+    public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
     
     public DbSet<Log> Logs => Set<Log>();
 

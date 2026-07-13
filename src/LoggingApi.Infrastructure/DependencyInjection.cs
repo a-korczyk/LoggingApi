@@ -12,6 +12,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OllamaSharp;
+using QRCoder;
 
 namespace LoggingApi.Infrastructure;
 
@@ -50,8 +51,12 @@ public static class DependencyInjection
             configuration.GetSection("PasswordHasher"));
         services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<ICurrentUser, CurrentUser>();
-        services.AddScoped<IEmailVerificationRequestService, EmailVerificationRequestService>();
+        services.AddScoped<ITokenGenerator, TokenGenerator>();
         services.AddScoped<IEmailVerificationRequestRepository, EmailVerificationRequestRepository>();
+        
+        // 2FA
+        services.AddScoped<ITwoFactorChallengeRepository, TwoFactorChallengeRepository>();
+        services.AddScoped<ITwoFactorService, TwoFactorService>();
 
         // Logs
         services.AddScoped<ILogRepository, LogRepository>();
