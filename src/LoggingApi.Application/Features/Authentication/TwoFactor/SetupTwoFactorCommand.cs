@@ -46,7 +46,7 @@ public sealed class SetupTwoFactorCommandHandler(
             cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return new SetupTwoFactorResponse(
             twoFactorToken,
             qrCode);
@@ -58,4 +58,4 @@ public sealed class SetupTwoFactorCommandHandler(
 /// </summary>
 public sealed record SetupTwoFactorResponse(
     string TwoFactorToken,
-    byte[] QrCode);
+    string QrCode);

@@ -61,7 +61,8 @@ public sealed class TwoFactorService(
             .ToHashSet();
     }
 
-    public byte[] GenerateQrCode(
+    /// <remarks>QR code image is encoded in Base64.</remarks>
+    public string GenerateQrCode(
         string userEmail,
         byte[] userTwoFactorSecret)
     {
@@ -75,7 +76,7 @@ public sealed class TwoFactorService(
         
         var qrCodeGenerator = new QRCodeGenerator();
         var qrCodeData = qrCodeGenerator.CreateQrCode(otpUri, QRCodeGenerator.ECCLevel.Q);
-        var qrCode = new PngByteQRCode(qrCodeData);
+        var qrCode = new Base64QRCode(qrCodeData);
         
         return qrCode.GetGraphic(10);
     }

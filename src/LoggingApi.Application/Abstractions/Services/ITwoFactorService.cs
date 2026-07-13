@@ -13,8 +13,7 @@ public interface ITwoFactorService
     
     public ISet<string> HashRecoveryCodes(IEnumerable<string> recoveryCodes);
 
-    public byte[] GenerateQrCode(
-        string userEmail,
+    public string GenerateQrCode(string userEmail,
         byte[] userTwoFactorSecret);
 
     public bool VerifyTotpCode(
