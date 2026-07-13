@@ -37,13 +37,24 @@ public sealed class SetupTwoFactorCommandHandler(
         var qrCode = twoFactorService.GenerateQrCode(user.Email, secret);
         
         user.AddTwoFactorSecret(twoFactorService.EncodeSecret(secret));
-        await twoFactorChallengeRepository.AddAsync(
-            new(
-                user.Id,
-                user,
+        
+        var existingChallenge = await twoFactorChallengeRepository.GetAsync(user.Id, cancellationToken);
+        if (existingChallenge is not null)
+        {
+            existingChallenge.Update(
                 tokenGenerator.HashToken(twoFactorToken),
-                TwoFactorChallengePurpose.Confirm2FaSetup),
-            cancellationToken);
+                TwoFactorChallengePurpose.Confirm2FaSetup);
+        }
+        else
+        {
+            await twoFactorChallengeRepository.AddAsync(
+                new(
+                    user.Id,
+                    user,
+                    tokenGenerator.HashToken(twoFactorToken),
+                    TwoFactorChallengePurpose.Confirm2FaSetup),
+                cancellationToken);
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

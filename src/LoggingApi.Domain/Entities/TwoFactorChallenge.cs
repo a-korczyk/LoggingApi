@@ -31,6 +31,14 @@ public sealed class TwoFactorChallenge
         TwoFactorChallengePurpose = twoFactorChallengePurpose;
         ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(10);
     }
+
+    public void Update(
+        string newTokenHash,
+        TwoFactorChallengePurpose newPurpose)
+    {
+        TokenHash = newTokenHash;
+        TwoFactorChallengePurpose = newPurpose;
+    }
     
     /// <summary>
     /// Checks if the provided challenge is valid.

@@ -52,14 +52,25 @@ public sealed class LoginCommandHandler(
                 RequiresTwoFactor: false);
         }
 
+        var existingChallenge = await twoFactorChallengeRepository.GetAsync(user.Id, cancellationToken);
         var twoFactorToken = tokenGenerator.GenerateToken();
-        await twoFactorChallengeRepository.AddAsync(
-            new(
-                user.Id,
-                user,
+        
+        if (existingChallenge is not null)
+        {
+            existingChallenge.Update(
                 tokenGenerator.HashToken(twoFactorToken),
-                TwoFactorChallengePurpose.Login),
-            cancellationToken);
+                TwoFactorChallengePurpose.Login);
+        }
+        else
+        {
+            await twoFactorChallengeRepository.AddAsync(
+                new(
+                    user.Id,
+                    user,
+                    tokenGenerator.HashToken(twoFactorToken),
+                    TwoFactorChallengePurpose.Login),
+                cancellationToken);
+        }
         
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
