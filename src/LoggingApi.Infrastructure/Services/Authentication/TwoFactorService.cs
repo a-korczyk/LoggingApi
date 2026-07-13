@@ -25,9 +25,9 @@ public sealed class TwoFactorService(
     /// <remarks>
     /// The code format is <c>XXXX-XXXX-XX</c>.
     /// </remarks>
-    public ISet<string> GenerateRecoveryCodes()
+    public IList<string> GenerateRecoveryCodes()
     {
-        var recoveryCodes = new HashSet<string>();
+        var recoveryCodes = new List<string>();
         string recoveryCodeAlphabet = configuration["TwoFactor:RecoveryCodeAlphabet"] 
                                       ?? throw new InvalidOperationException("Recovery code alphabet is missing.");
         
@@ -51,14 +51,14 @@ public sealed class TwoFactorService(
     /// <remarks>
     /// Uses SHA256 as the algorithm.
     /// </remarks>
-    public ISet<string> HashRecoveryCodes(IEnumerable<string> recoveryCodes)
+    public IList<string> HashRecoveryCodes(IEnumerable<string> recoveryCodes)
     {
         return recoveryCodes
             .Select(code =>
                 Convert.ToHexString(
                     SHA256.HashData(Encoding.UTF8.GetBytes(code))))
             
-            .ToHashSet();
+            .ToList();
     }
 
     /// <remarks>QR code image is encoded in Base64.</remarks>

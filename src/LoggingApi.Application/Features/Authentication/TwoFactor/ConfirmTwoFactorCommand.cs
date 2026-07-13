@@ -79,7 +79,7 @@ public sealed class ConfirmTwoFactorCommandHandler(
 /// Represents a successful 2FA setup for an account.
 /// </summary>
 public sealed record ConfirmTwoFactorResponse(
-    ISet<string> RecoveryCodes);
+    IList<string> RecoveryCodes);
 
 public sealed class ConfirmCommandValidator : AbstractValidator<ConfirmTwoFactorCommand>
 {

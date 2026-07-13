@@ -9,9 +9,9 @@ public interface ITwoFactorService
     
     public string EncodeSecret(byte[] secret);
     
-    public ISet<string> GenerateRecoveryCodes();
+    public IList<string> GenerateRecoveryCodes();
     
-    public ISet<string> HashRecoveryCodes(IEnumerable<string> recoveryCodes);
+    public IList<string> HashRecoveryCodes(IEnumerable<string> recoveryCodes);
 
     public string GenerateQrCode(string userEmail,
         byte[] userTwoFactorSecret);
