@@ -6,6 +6,7 @@ using LoggingApi.Infrastructure.Repositories;
 using LoggingApi.Infrastructure.Services;
 using LoggingApi.Infrastructure.Services.Authentication;
 using LoggingApi.Infrastructure.Services.Authentication.PasswordHasher;
+using LoggingApi.Infrastructure.Services.Logs;
 using LoggingApi.Infrastructure.Services.Logs.Digest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -50,6 +51,7 @@ public static class DependencyInjection
         services.AddSingleton<IEmailSender, EmailSender>();
         services.Configure<EmailOptions>(
             configuration.GetSection(EmailOptions.SectionName));
+        services.AddScoped<ILogNotificationService, LogNotificationService>();
         
         // User
         services.AddScoped<IUserRepository, UserRepository>();
