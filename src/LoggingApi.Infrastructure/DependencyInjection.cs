@@ -35,6 +35,7 @@ public static class DependencyInjection
             ConnectionMultiplexer.Connect(
                 configuration.GetConnectionString("Cache")
                 ?? throw new InvalidOperationException("Redis connection string not found.")));
+        services.AddSingleton<ICacheService, CacheService>();
         
         // AI chat
         services.AddSingleton<IChatClient>(_ =>
