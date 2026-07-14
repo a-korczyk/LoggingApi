@@ -32,7 +32,8 @@ public sealed class UpdateLogCommandHandler(
     ILogRepository logRepository,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
-    IEmailSender emailSender,
+    IUserRepository userRepository,
+    ILogNotificationService logNotificationService,
     ILogDigestQueue digestQueue)
     : IRequestHandler<UpdateLogCommand, Result>
 {
@@ -53,24 +54,28 @@ public sealed class UpdateLogCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         
-        string userEmail = currentUser.GetUserEmail();
-        
-        if (log.Type == LogType.CriticalError && log.Status == LogStatus.Resolved)
-            await emailSender.SendAsync(
-                new EmailMessageDetails(
-                    userEmail,
-                    null,
-                    EmailTemplates.CriticalErrorResolved(log).Subject,
-                    EmailTemplates.CriticalErrorResolved(log).Body),
-                cancellationToken);
-        
-        digestQueue.Update(
-            userEmail,
-            new LogDigestEntry(
-                log.Id,
-                log.Status,
-                log.Type,
-                log.Title));
+        var user = await userRepository.GetByIdAsync(currentUser.GetUserId(), cancellationToken);
+
+        try
+        {
+            if (log.Type == LogType.CriticalError && log.Status == LogStatus.Resolved)
+                await logNotificationService.NotifyCriticalErrorAsync(
+                    log,
+                    user,
+                    cancellationToken);
+
+            digestQueue.Update(
+                user.Email,
+                new LogDigestEntry(
+                    log.Id,
+                    log.Status,
+                    log.Type,
+                    log.Title));
+        }
+        catch
+        {
+            await Console.Error.WriteLineAsync(ex.ToString());
+        }
 
         
         return Result.Success();
