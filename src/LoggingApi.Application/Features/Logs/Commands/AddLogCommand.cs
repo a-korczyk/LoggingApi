@@ -29,7 +29,7 @@ public sealed class AddLogCommandHandler(
     IUserRepository userRepository,
     ICurrentUser currentUser,
     IUnitOfWork unitOfWork,
-    IEmailSender emailSender,
+    ILogNotificationService logNotificationService,
     ILogDigestQueue digestQueue)
     : IRequestHandler<AddLogCommand, Result<AddLogResponse>>
 {
@@ -52,12 +52,9 @@ public sealed class AddLogCommandHandler(
         try
         {
             if (log.Type == LogType.CriticalError)
-                await emailSender.SendAsync(
-                    new(
-                        userEmail,
-                        null, 
-                        EmailTemplates.CriticalErrorLogged(log).Subject,
-                        EmailTemplates.CriticalErrorLogged(log).Body),
+                await logNotificationService.NotifyCriticalErrorAsync(
+                    log,
+                    user,
                     cancellationToken);
 
             digestQueue.Insert(

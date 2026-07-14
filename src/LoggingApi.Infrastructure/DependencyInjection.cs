@@ -6,6 +6,7 @@ using LoggingApi.Infrastructure.Repositories;
 using LoggingApi.Infrastructure.Services;
 using LoggingApi.Infrastructure.Services.Authentication;
 using LoggingApi.Infrastructure.Services.Authentication.PasswordHasher;
+using LoggingApi.Infrastructure.Services.Logs;
 using LoggingApi.Infrastructure.Services.Logs.Digest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OllamaSharp;
 using QRCoder;
+using StackExchange.Redis;
 
 namespace LoggingApi.Infrastructure;
 
@@ -27,6 +29,13 @@ public static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
         });
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
+        // Redis
+        services.AddSingleton<IConnectionMultiplexer>(_ => 
+            ConnectionMultiplexer.Connect(
+                configuration.GetConnectionString("Cache")
+                ?? throw new InvalidOperationException("Redis connection string not found.")));
+        services.AddSingleton<ICacheService, CacheService>();
         
         // AI chat
         services.AddSingleton<IChatClient>(_ =>
@@ -43,6 +52,7 @@ public static class DependencyInjection
         services.AddSingleton<IEmailSender, EmailSender>();
         services.Configure<EmailOptions>(
             configuration.GetSection(EmailOptions.SectionName));
+        services.AddScoped<ILogNotificationService, LogNotificationService>();
         
         // User
         services.AddScoped<IUserRepository, UserRepository>();

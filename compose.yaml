@@ -7,9 +7,11 @@ services:
       - 8080:8080
     depends_on:
       - postgres
+      - loggingapi.cache
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=loggingapi;Username=postgres;Password=postgres
+      ConnectionStrings__Cache: "loggingapi.cache:6379,password=jTjlQ9mKFUHYbpiHYXM23HUrZyti4H3zUKrc6pdWeUP"
       Jwt__Secret: "yU16thMLT0uaBgVyDh1nU2f4ei2fxlhx3tPVnTPQPas"
       Ai__BaseAddress: "http://host.docker.internal:11434"
       Ai__Model: "qwen3:8b"
@@ -43,5 +45,14 @@ services:
     volumes:
       - ./data:/data
   
+  loggingapi.cache:
+    container_name: "loggingapi.cache"
+    image: redis:8-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    command: "redis-server --requirepass jTjlQ9mKFUHYbpiHYXM23HUrZyti4H3zUKrc6pdWeUP --appendonly yes"
+
 volumes:
   postgres_data:
+  redis_data:
