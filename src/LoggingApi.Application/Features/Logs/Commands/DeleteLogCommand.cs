@@ -35,7 +35,7 @@ public sealed class DeleteLogCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         try {
-            digestQueue.Delete(
+            await digestQueue.DeleteAsync(
                 currentUser.GetUserEmail(),
                 log.Id);
         }

@@ -3,26 +3,17 @@ using LoggingApi.Domain.Entities;
 namespace LoggingApi.Application.Abstractions.Services;
 
 /// <summary>
-/// Stores <see cref="LogDigestEntry"/>s grouped by recipient for later inclusion in digest emails.
-/// Provides methods for manipulating and retrieving the entry queue.
+/// Provides methods for manipulating and retrieving the entry queue for log digests.
 /// </summary>
 public interface ILogDigestQueue
 {
     /// <summary>
-    /// Adds a new entry to the recipient's digest queue.
+    /// Adds a new entry to the recipient's digest queue
+    /// or overwrites the existing one.
     /// </summary>
     /// <param name="email">Recipient's email.</param>
     /// <param name="entry">Entry to add.</param>
-    public void Insert(
-        string email,
-        LogDigestEntry entry);
-
-    /// <summary>
-    /// Overwrites an existing entry of the same identifier.
-    /// </summary>
-    /// <param name="email">Recipient's email.</param>
-    /// <param name="entry">The updated entry.</param>
-    public void Update(
+    public Task UpsertAsync(
         string email,
         LogDigestEntry entry);
 
@@ -31,7 +22,7 @@ public interface ILogDigestQueue
     /// </summary>
     /// <param name="email">Recipient's email.</param>
     /// <param name="id">Entry's identifier.</param>
-    public void Delete(
+    public Task DeleteAsync(
         string email,
         Guid id);
 
@@ -43,7 +34,7 @@ public interface ILogDigestQueue
     /// is a read-only dictionary where the key is the log's identifier and the value is
     /// a <see cref="LogDigestEntry"/>.
     /// </returns>
-    public IReadOnlyDictionary<string, IReadOnlyDictionary<Guid, LogDigestEntry>> TakeRecipients();
+    public Task<IReadOnlyDictionary<string, IReadOnlyDictionary<Guid, LogDigestEntry>>> TakeRecipientsAsync();
 }
 
 /// <summary>
