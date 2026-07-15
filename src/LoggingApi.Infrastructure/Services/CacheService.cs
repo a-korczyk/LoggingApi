@@ -24,19 +24,63 @@ public interface ICacheService
         T value,
         TimeSpan? expiration);
     
-    /// <seealso cref="SetAsync"/>
+    /// <see cref="SetAsync"/>
     Task<bool> SetIfNotExistsAsync<T>(
         string key,
         T value,
         TimeSpan? expiration);
     
+    /// <summary>
+    /// Deletes the provided key.
+    /// </summary>
     Task DeleteAsync(string key);
 
+    /// <summary>
+    /// Increments the value at the provided key.
+    /// </summary>
     Task<long> IncrementAsync(string key);
 
+    /// <summary>
+    /// Increments the value at the provided key.
+    /// If it's the first incrementation, then the provided
+    /// expiration time will also be added to that key.
+    /// </summary>
+    /// <param name="expiration">In how much time the key will expire.</param>
     Task<long> IncrementWithExpirationAsync(
         string key,
         TimeSpan expiration);
+    
+    /// <summary>
+    /// Gets all the hashes associated with the provided key.
+    /// </summary>
+    Task<IList<CacheHashEntry<T>>> HashGetAllAsync<T>(string key);
+
+    /// <summary>
+    /// Sets a hash for the associated key.
+    /// </summary>
+    Task HashSetAsync<T>(
+        string key,
+        string hashKey,
+        T value);
+
+    /// <see cref="HashSetAsync{T}"/>
+    Task HashSetIfExistsAsync<T>(
+        string key,
+        string hashKey,
+        T value);
+    
+    /// <see cref="HashSetAsync{T}"/>
+    Task HashSetIfNotExistsAsync<T>(
+        string key,
+        string hashKey,
+        T value);
+
+    /// <summary>
+    /// Removes a hash from the key.
+    /// </summary>
+    Task<bool> HashDeleteAsync(
+        string key,
+        string hashKey);
 }
 
 /// <inheritdoc/>
@@ -112,8 +156,86 @@ public sealed class CacheService(
 
         return count;
     }
+
+    public async Task<IList<CacheHashEntry<T>>> HashGetAllAsync<T>(string key)
+    {
+        var entries = await _database.HashGetAllAsync(key);
+
+        if (!entries.Any())
+            return [];
+
+        var result = new List<CacheHashEntry<T>>();
+
+        foreach (var entry in entries)
+        {
+            try
+            {
+                result.Add(new(
+                    entry.Name.ToString(),
+                    JsonSerializer.Deserialize<T>(entry.Value.ToString())));
+            }
+            catch (JsonException)
+            {
+                await _database.HashDeleteAsync(key, entry.Name);
+            }
+        }
+        
+        return result;
+    }
+
+    public async Task HashSetAsync<T>(
+        string key,
+        string hashKey,
+        T value)
+    {
+        var json = JsonSerializer.Serialize(value);
+        
+        await _database.HashSetAsync(
+            key,
+            hashKey,
+            json);
+    }
+    
+    public async Task HashSetIfExistsAsync<T>(
+        string key,
+        string hashKey,
+        T value)
+    {
+        var json = JsonSerializer.Serialize(value);
+        
+        await _database.HashSetAsync(
+            key,
+            hashKey,
+            json,
+            When.Exists);
+    }
+
+    public async Task HashSetIfNotExistsAsync<T>(
+        string key,
+        string hashKey,
+        T value)
+    {
+        var json = JsonSerializer.Serialize(value);
+        
+        await _database.HashSetAsync(
+            key,
+            hashKey,
+            json,
+            When.NotExists);
+    }
+
+    public async Task<bool> HashDeleteAsync(
+        string key,
+        string hashKey)
+    {
+        return await _database.HashDeleteAsync(key, hashKey);
+    }
 }
 
 public sealed record CacheResult<T>(
     bool Exists,
+    T? Value);
+    
+public sealed record CacheHashEntry<T>(
+    string HashKey,
     T? Value);

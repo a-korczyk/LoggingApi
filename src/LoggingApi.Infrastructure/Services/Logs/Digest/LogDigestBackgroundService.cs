@@ -18,7 +18,7 @@ public sealed class LogDigestBackgroundService(
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var recipients = logDigestQueue.TakeRecipients();
+            var recipients = await logDigestQueue.TakeRecipientsAsync();
 
             foreach (var recipient in recipients)
             {

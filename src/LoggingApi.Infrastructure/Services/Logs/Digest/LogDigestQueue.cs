@@ -2,71 +2,76 @@ using LoggingApi.Application.Abstractions.Services;
 
 namespace LoggingApi.Infrastructure.Services.Logs.Digest;
 
-/// <summary>
-/// Thread-safe in-memory implementation of <see cref="ILogDigestQueue"/>.
-/// </summary>
-public sealed class LogDigestQueue : ILogDigestQueue
+/// <inheritdoc/>
+public sealed class LogDigestQueue(
+    ICacheService cacheService) : ILogDigestQueue
 {
-    private readonly Lock _lock = new();
-    
-    /// <summary>
-    /// Stores the recipients' emails and their <see cref="LogDigestEntry"/>s.
-    /// </summary>
-    private readonly Dictionary<string, Dictionary<Guid, LogDigestEntry>> _recipients = [];
-    
-    public void Insert(
+    public async Task UpsertAsync(
         string email,
         LogDigestEntry entry)
     {
-        lock (_lock)
-        {
-            if (_recipients.TryGetValue(email, out var recipient))
-                recipient[entry.Id]  = entry;
-            else
-            {
-                _recipients[email] = new();
-                _recipients[email][entry.Id]  = entry;
-            }
-        }
+        await cacheService.HashSetAsync(
+            $"log-digest-queue:recipients:{email}",
+            entry.Id.ToString(),
+            entry
+        );
+        
+        await cacheService.HashSetIfNotExistsAsync(
+            "log-digest-queue:recipients-list",
+            email,
+            true);
     }
 
-    public void Update(
-        string email,
-        LogDigestEntry entry)
-    {
-        lock (_lock)
-        {
-            if (!_recipients.TryGetValue(email, out var recipient))
-                return;
-            
-            if (recipient.ContainsKey(entry.Id))
-                recipient[entry.Id] = entry;
-        }
-    }
-
-    public void Delete(
+    public async Task DeleteAsync(
         string email,
         Guid id)
     {
-        lock (_lock)
-        {
-            if (_recipients.TryGetValue(email, out var recipient)) 
-                recipient.Remove(id);
-        }
+        await cacheService.HashDeleteAsync(
+            $"log-digest-queue:recipients:{email}",
+            id.ToString());
+        
+        var recipientDigest = 
+            await cacheService
+                .HashGetAllAsync<LogDigestEntry>($"log-digest-queue:recipients:{email}");
+
+        if (!recipientDigest.Any())
+            await cacheService.HashDeleteAsync(
+                "log-digest-queue:recipients-list",
+                email);
     }
 
-    public IReadOnlyDictionary<string, IReadOnlyDictionary<Guid, LogDigestEntry>> TakeRecipients()
+    public async Task<IReadOnlyDictionary<string, IReadOnlyDictionary<Guid, LogDigestEntry>>> TakeRecipientsAsync()
     {
-        lock (_lock)
-        {
-            var recipients = 
-                _recipients.ToDictionary(
-                    pair => pair.Key,
-                    pair => (IReadOnlyDictionary<Guid, LogDigestEntry>) pair.Value);
+        var result = new Dictionary<string, IReadOnlyDictionary<Guid, LogDigestEntry>>();
+        
+        var recipientList = 
+            await cacheService
+                .HashGetAllAsync<bool>("log-digest-queue:recipients-list");
+
+        foreach (var recipient in recipientList)
+        { 
+            var cachedDigest =
+                await cacheService
+                    .HashGetAllAsync<LogDigestEntry>($"log-digest-queue:recipients:{recipient.HashKey}");
             
-            _recipients.Clear();
+            var digest = 
+               cachedDigest
+                .Select(x => 
+                    new KeyValuePair<Guid, LogDigestEntry>(
+                        Guid.Parse(x.HashKey), 
+                        x.Value))
+                .ToDictionary();
             
-            return recipients;
+            result.Add(recipient.HashKey, digest);
+            
+            // Delete used recipient
+            await cacheService.HashDeleteAsync(
+                "log-digest-queue:recipients-list",
+                recipient.HashKey);
+            
+            await cacheService.DeleteAsync($"log-digest-queue:recipients:{recipient.HashKey}");
         }
+        
+        return result;
     }
 }

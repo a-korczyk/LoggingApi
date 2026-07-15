@@ -57,7 +57,7 @@ public sealed class AddLogCommandHandler(
                     user,
                     cancellationToken);
 
-            digestQueue.Insert(
+            await digestQueue.UpsertAsync(
                 userEmail,
                 new LogDigestEntry(
                     log.Id,

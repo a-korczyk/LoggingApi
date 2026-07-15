@@ -64,7 +64,7 @@ public sealed class UpdateLogCommandHandler(
                     user,
                     cancellationToken);
 
-            digestQueue.Update(
+            await digestQueue.UpsertAsync(
                 user.Email,
                 new LogDigestEntry(
                     log.Id,
@@ -72,7 +72,7 @@ public sealed class UpdateLogCommandHandler(
                     log.Type,
                     log.Title));
         }
-        catch
+        catch (Exception ex)
         {
             await Console.Error.WriteLineAsync(ex.ToString());
         }
