@@ -28,7 +28,8 @@ public sealed class DeleteLogCommandHandler(
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
 
-        if (log == null || currentUser.GetUserId() != log.UserId)
+        // TODO: check if user has workspaceuser with workspaceid matching log's
+        if (log == null /* || currentuser.getuserid() != log.userid */)
             return LogErrors.LogWithIdNotFound;
 
         logRepository.Delete(log);

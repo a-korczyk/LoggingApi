@@ -13,9 +13,18 @@ public sealed class LogConfiguration : IEntityTypeConfiguration<Log>
     {
         builder.HasKey(x => x.Id);
 
-        builder.HasOne(x => x.User)
-            .WithMany()
-            .HasForeignKey(x => x.UserId)
+        builder
+            .HasOne(x => x.Workspace)
+            .WithMany(x => x.Logs)
+            .HasForeignKey(x => x.WorkspaceId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+        
+        builder
+            .HasOne(x => x.CreatedByUser)
+            .WithMany(x => x.CreatedLogs)
+            .HasForeignKey(x => x.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
 
         builder.Property(x => x.Status)
@@ -34,7 +43,8 @@ public sealed class LogConfiguration : IEntityTypeConfiguration<Log>
             .IsRequired();
         
         // Indexes
-        builder.HasIndex(x => x.UserId);
+        builder.HasIndex(x => x.WorkspaceId);
+        builder.HasIndex(x => x.CreatedByUserId);
         builder.HasIndex(x => x.Status);
         builder.HasIndex(x => x.Type);
     }

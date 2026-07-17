@@ -25,14 +25,14 @@ public sealed class LogRepository(ApplicationDbContext dbContext) : ILogReposito
     }
     
     public async Task<IReadOnlyList<Log>> GetAsync(
-        Guid userId,
+        Guid workspaceId,
         Pagination pagination,
         LogFilters? filters,
         CancellationToken cancellationToken)
     {
         var query = dbContext.Logs
             .AsNoTracking()
-            .Where(x => x.UserId == userId);
+            .Where(x => x.WorkspaceId == workspaceId);
 
         if (filters is not null)
         {

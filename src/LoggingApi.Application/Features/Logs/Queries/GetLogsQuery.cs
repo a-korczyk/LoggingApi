@@ -15,6 +15,7 @@ namespace LoggingApi.Application.Features.Logs.Queries;
 public sealed record GetLogsQuery(
     int? Page,
     int? PageSize,
+    Guid WorkspaceId,
     IReadOnlyList<LogStatus>? Statuses,
     IReadOnlyList<LogType>? Types,
     string? TitleContains,
@@ -32,7 +33,7 @@ public sealed class GetLogsQueryHandler(
     public async Task<Result<GetLogsResponse>> Handle(GetLogsQuery request, CancellationToken cancellationToken)
     {
         IReadOnlyList<Log> logs = await logRepository.GetAsync(
-            currentUser.GetUserId(),
+            request.WorkspaceId,
             new Pagination(
                 request.Page ?? Pagination.DefaultPage,
                 request.PageSize ?? Pagination.DefaultPageSize),

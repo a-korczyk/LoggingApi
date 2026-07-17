@@ -12,6 +12,8 @@ public sealed class Workspace
     
     public ICollection<WorkspaceUser> WorkspaceUsers { get; private set; } = new List<WorkspaceUser>();
     
+    public ICollection<Log> Logs { get; private set; } = new List<Log>();
+    
     public string Name { get; private set; }
     
     public DateTimeOffset CreatedAt { get; private set; }

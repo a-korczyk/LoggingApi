@@ -19,6 +19,7 @@ namespace LoggingApi.Application.Features.Logs.Commands;
 /// <param name="Title">The log's new title.</param>
 /// <param name="Data">Updated additional log details.</param>
 public sealed record UpdateLogCommand(
+    Guid WorkspaceId,
     Guid Id,
     LogStatus? Status,
     LogType? Type,
@@ -41,7 +42,8 @@ public sealed class UpdateLogCommandHandler(
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
         
-        if (log == null || currentUser.GetUserId() != log.UserId)
+        // TODO: check if user has workspaceuser with workspaceid matching log's
+        if (log == null /* || currentuser.getuserid() != log.userid */)
             return LogErrors.LogWithIdNotFound;
         
         
