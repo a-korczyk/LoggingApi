@@ -27,6 +27,9 @@ public sealed class WorkspaceUser
        
        Role = role;
    }
+   
+   public void UpdateRole(WorkspaceRole newRole) 
+       => Role = newRole;
 }
 
 /// <summary>
