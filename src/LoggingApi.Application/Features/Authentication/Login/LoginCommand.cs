@@ -74,7 +74,6 @@ public sealed class LoginCommandHandler(
             await twoFactorChallengeRepository.AddAsync(
                 new(
                     user.Id,
-                    user,
                     tokenGenerator.HashToken(twoFactorToken),
                     TwoFactorChallengePurpose.Login),
                 cancellationToken);

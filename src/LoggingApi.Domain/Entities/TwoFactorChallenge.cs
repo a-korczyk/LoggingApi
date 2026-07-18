@@ -21,12 +21,10 @@ public sealed class TwoFactorChallenge
 
     public TwoFactorChallenge(
         Guid userId,
-        User user,
         string tokenHash,
         TwoFactorChallengePurpose twoFactorChallengePurpose)
     {
         UserId = userId;
-        User = user;
         TokenHash = tokenHash;
         TwoFactorChallengePurpose = twoFactorChallengePurpose;
         ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(10);
