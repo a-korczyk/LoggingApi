@@ -28,6 +28,15 @@ public interface IUserRepository
     Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
     
     /// <summary>
+    /// Retrieves all users that are members of a workspace.
+    /// </summary>
+    /// <param name="pagination">The pagination settings.</param>
+    Task<ICollection<User>> GetByWorkspaceId(
+        Guid workspaceId,
+        Pagination pagination,
+        CancellationToken cancellationToken);
+    
+    /// <summary>
     /// Inserts a new user.
     /// </summary>
     /// <param name="user">The user to insert.</param>

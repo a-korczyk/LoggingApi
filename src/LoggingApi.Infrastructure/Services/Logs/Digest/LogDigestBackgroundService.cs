@@ -1,3 +1,4 @@
+using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
 using Microsoft.Extensions.Hosting;
 using IEmailSender = LoggingApi.Application.Abstractions.Services.Email.IEmailSender;
@@ -6,11 +7,12 @@ namespace LoggingApi.Infrastructure.Services.Logs.Digest;
 
 /// <summary>
 /// Periodically processes log digests by generating and sending
-/// summary emails to each recipient.
+/// summary emails to each user of the workspace.
 /// </summary>
 public sealed class LogDigestBackgroundService(
     ILogDigestQueue logDigestQueue,
     ILogDigestEmailBuilder logDigestEmailBuilder,
+    IUserRepository userRepository, 
     IEmailSender emailSender) : BackgroundService
 {
     protected override async Task ExecuteAsync(
@@ -18,17 +20,45 @@ public sealed class LogDigestBackgroundService(
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var recipients = await logDigestQueue.TakeRecipientsAsync();
+            var workspaces = await logDigestQueue.TakeWorkspacesAsync();
 
-            foreach (var recipient in recipients)
+            foreach (var workspace in workspaces)
             {
-                var message = await logDigestEmailBuilder.Build(
-                    recipient,
+                var genericMessage = await logDigestEmailBuilder.Build(
+                    workspace,
                     stoppingToken);
+                
+                if (genericMessage is null)
+                    continue;
 
-                await emailSender.SendAsync(
-                    message,
-                    stoppingToken);
+                var currentPage = 0;
+                var pageSize = 100;
+                while (true)
+                {
+                    var workspaceUsers = await userRepository.GetByWorkspaceId(
+                        workspace.Key,
+                        new Pagination(
+                            currentPage,
+                            pageSize),
+                        stoppingToken);
+
+                    if (!workspaceUsers.Any())
+                        break;
+
+                    foreach (var user in workspaceUsers)
+                    {
+                        var message = genericMessage with { RecipientEmail =  user.Email };
+                        
+                        await emailSender.SendAsync(
+                            message,
+                            stoppingToken);
+                    }
+                    
+                    if (workspaceUsers.Count < pageSize)
+                        break;
+
+                    currentPage++;
+                }
             }
 
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);

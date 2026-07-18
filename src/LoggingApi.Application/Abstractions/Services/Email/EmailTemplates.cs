@@ -45,14 +45,14 @@ public static class EmailTemplates
              """
         );
 
-    public static readonly EmailTemplate LogDigest =
+    public static EmailTemplate LogDigest(string workspaceName) =>
         new(
-            "Log Summary (Last 30 Minutes) - LoggingApi",
+            $"{workspaceName} - Log Summary (Last 30 Minutes) - LoggingApi",
             string.Empty);
 
-    public static readonly EmailTemplate LogDigestFailed = 
+    public static EmailTemplate LogDigestFailed(string workspaceName) =>
         new(
-            "Log Summary (Last 30 Minutes) - LoggingApi",
+            $"{workspaceName} - Log Summary (Last 30 Minutes) - LoggingApi",
             $"""
              # Log Summary From The Last 30 Minutes
              

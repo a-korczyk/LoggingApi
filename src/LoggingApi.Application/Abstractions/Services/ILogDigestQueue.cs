@@ -8,37 +8,37 @@ namespace LoggingApi.Application.Abstractions.Services;
 public interface ILogDigestQueue
 {
     /// <summary>
-    /// Adds a new entry to the recipient's digest queue
+    /// Adds a new entry to the workspace's digest queue
     /// or overwrites the existing one.
     /// </summary>
-    /// <param name="email">Recipient's email.</param>
+    /// <param name="workspaceId">Workspace's identifier.</param>
     /// <param name="entry">Entry to add.</param>
     public Task UpsertAsync(
-        string email,
+        Guid workspaceId,
         LogDigestEntry entry);
 
     /// <summary>
     /// Deletes the existing entry with the provided identifier.
     /// </summary>
-    /// <param name="email">Recipient's email.</param>
-    /// <param name="id">Entry's identifier.</param>
+    /// <param name="workspaceId">Workspace's identifier.</param>
+    /// <param name="entryId">Entry's identifier.</param>
     public Task DeleteAsync(
-        string email,
-        Guid id);
+        Guid workspaceId,
+        Guid entryId);
 
     /// <summary>
-    /// Returns recipients and their digest entries, then clears it.
+    /// Returns workspaces and their digest entries, then clears it.
     /// </summary>
     /// <returns>
-    /// A read-only dictionary, where the key is the recipient's email and the value
+    /// A read-only dictionary, where the key is the workspace's identifier and the value
     /// is a read-only dictionary where the key is the log's identifier and the value is
     /// a <see cref="LogDigestEntry"/>.
     /// </returns>
-    public Task<IReadOnlyDictionary<string, IReadOnlyDictionary<Guid, LogDigestEntry>>> TakeRecipientsAsync();
+    public Task<IReadOnlyDictionary<Guid, IReadOnlyDictionary<Guid, LogDigestEntry>>> TakeWorkspacesAsync();
 }
 
 /// <summary>
-/// Represents a log entry in a recipient's digest queue.
+/// Represents a log entry in a workspace's digest queue.
 /// </summary>
 /// <param name="Id">Identifier of the log.</param>
 /// <param name="Status">The log's status.</param>

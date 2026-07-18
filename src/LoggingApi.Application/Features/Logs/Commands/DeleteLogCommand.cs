@@ -44,7 +44,7 @@ public sealed class DeleteLogCommandHandler(
 
         try {
             await digestQueue.DeleteAsync(
-                currentUser.GetUserEmail(),
+                log.WorkspaceId,
                 log.Id);
         }
         catch (Exception ex)
