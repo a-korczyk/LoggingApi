@@ -27,6 +27,7 @@ public sealed record AddLogCommand(
 /// </summary>
 public sealed class AddLogCommandHandler(
     ILogRepository logRepository,
+    IWorkspaceUserRepository workspaceUserRepository,
     IUserRepository userRepository,
     ICurrentUser currentUser,
     IUnitOfWork unitOfWork,
@@ -37,7 +38,13 @@ public sealed class AddLogCommandHandler(
     public async Task<Result<AddLogResponse>> Handle(AddLogCommand request, CancellationToken cancellationToken)
     {
         Guid userId = currentUser.GetUserId();
-        User? user = await userRepository.GetByIdAsync(userId, cancellationToken);
+        User user = (await userRepository.GetByIdAsync(userId, cancellationToken))!;
+
+        if (!await workspaceUserRepository.IsMemberAsync(
+                userId,
+                request.WorkspaceId,
+                cancellationToken))
+            return LogErrors.Forbidden;
         
         Log log = new Log(
             request.WorkspaceId,

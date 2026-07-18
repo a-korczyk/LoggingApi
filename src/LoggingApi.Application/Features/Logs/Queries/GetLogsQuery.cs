@@ -32,7 +32,7 @@ public sealed class GetLogsQueryHandler(
 {
     public async Task<Result<GetLogsResponse>> Handle(GetLogsQuery request, CancellationToken cancellationToken)
     {
-        IReadOnlyList<Log> logs = await logRepository.GetAsync(
+        IReadOnlyList<Log> logs = await logRepository.GetByWorkspaceIdAsync(
             request.WorkspaceId,
             new Pagination(
                 request.Page ?? Pagination.DefaultPage,

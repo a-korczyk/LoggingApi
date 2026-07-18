@@ -31,6 +31,7 @@ public sealed record UpdateLogCommand(
 /// </summary>
 public sealed class UpdateLogCommandHandler(
     ILogRepository logRepository,
+    IWorkspaceUserRepository workspaceUserRepository,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
     IUserRepository userRepository,
@@ -41,11 +42,16 @@ public sealed class UpdateLogCommandHandler(
     public async Task<Result> Handle(UpdateLogCommand request, CancellationToken cancellationToken)
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
-        
-        // TODO: check if user has workspaceuser with workspaceid matching log's
-        if (log == null /* || currentuser.getuserid() != log.userid */)
+        if (log is null)
             return LogErrors.LogWithIdNotFound;
         
+        bool isMemberOfWorkspace = await workspaceUserRepository.IsMemberAsync(
+            currentUser.GetUserId(),
+            log.WorkspaceId,
+            cancellationToken);
+        
+        if (isMemberOfWorkspace is false)
+            return LogErrors.LogWithIdNotFound;
         
         log.Update(
             request.Status,

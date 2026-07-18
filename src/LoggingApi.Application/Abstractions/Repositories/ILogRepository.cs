@@ -35,7 +35,7 @@ public interface ILogRepository
    /// If there are no logs associated with the provided user, or the requested page
    /// contains no logs, then an empty collection is returned.
    /// </remarks>
-   Task<IReadOnlyList<Log>> GetAsync(
+   Task<IReadOnlyList<Log>> GetByWorkspaceIdAsync(
       Guid userId,
       Pagination pagination,
       LogFilters? filters,

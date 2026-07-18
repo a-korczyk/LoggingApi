@@ -24,7 +24,7 @@ public sealed class LogRepository(ApplicationDbContext dbContext) : ILogReposito
         return await dbContext.Logs.FindAsync(id, cancellationToken);
     }
     
-    public async Task<IReadOnlyList<Log>> GetAsync(
+    public async Task<IReadOnlyList<Log>> GetByWorkspaceIdAsync(
         Guid workspaceId,
         Pagination pagination,
         LogFilters? filters,
