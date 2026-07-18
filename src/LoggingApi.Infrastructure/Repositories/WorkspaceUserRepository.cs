@@ -62,11 +62,11 @@ public sealed class WorkspaceUserRepository(
     public async Task<bool> IsInRoleAsync(
         Guid userId,
         Guid workspaceId,
-        WorkspaceRole role,
+        ICollection<WorkspaceRole> roles,
         CancellationToken cancellationToken)
     {
         return await dbContext.WorkspaceUsers.AnyAsync(
-            x => x.UserId == userId && x.WorkspaceId == workspaceId && x.Role == role,
+            x => x.UserId == userId && x.WorkspaceId == workspaceId && roles.Contains(x.Role),
             cancellationToken);
     }
 

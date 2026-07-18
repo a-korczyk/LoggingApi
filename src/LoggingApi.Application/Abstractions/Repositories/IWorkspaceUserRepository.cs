@@ -50,12 +50,12 @@ public interface IWorkspaceUserRepository
         CancellationToken cancellationToken);
     
     /// <summary>
-    /// Checks if the user has a specific role in a workspace.
+    /// Checks if the user has one of the specified roles in a workspace.
     /// </summary>
     Task<bool> IsInRoleAsync(
         Guid userId,
         Guid workspaceId,
-        WorkspaceRole role,
+        ICollection<WorkspaceRole> roles,
         CancellationToken cancellationToken);
 
     /// <summary>
