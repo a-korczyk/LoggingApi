@@ -1,4 +1,5 @@
 using System.Text;
+using LoggingApi.Infrastructure.Services.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -17,19 +18,33 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddExceptionHandler<GlobalExceptionHandler>();
 
+        services.AddOptions<AccessTokenOptions>()
+            .BindConfiguration(AccessTokenOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
+        services.AddOptions<RefreshTokenOptions>()
+            .BindConfiguration(RefreshTokenOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        var accessTokenOptions = configuration
+            .GetSection(AccessTokenOptions.SectionName)
+            .Get<AccessTokenOptions>() ?? throw new InvalidOperationException("Access token configuration not found.");
+        
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidIssuer = accessTokenOptions.Issuer,
                     ValidateIssuer = true,
             
-                    ValidAudience = configuration["Jwt:Audience"],
+                    ValidAudience = accessTokenOptions.Audience,
                     ValidateAudience = true,
             
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["Jwt:Secret"])),
+                        Encoding.UTF8.GetBytes(accessTokenOptions.Secret)),
             
                     ValidateIssuerSigningKey = true,
             
