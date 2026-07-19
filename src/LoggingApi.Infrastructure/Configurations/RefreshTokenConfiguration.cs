@@ -25,5 +25,7 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
         
         builder.Property(x => x.ExpiresAt)
             .IsRequired();
+
+        builder.Property(x => x.RevokedAt);
     }
 }

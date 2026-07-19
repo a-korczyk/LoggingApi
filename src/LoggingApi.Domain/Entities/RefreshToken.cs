@@ -12,7 +12,7 @@ public sealed class RefreshToken
     public DateTimeOffset CreatedAt { get; private set; }
     
     public DateTimeOffset ExpiresAt { get; private set; }
-    public DateTimeOffset RevokedAt { get; private set; }
+    public DateTimeOffset? RevokedAt { get; private set; }
     
     // Required by EF Core
     private RefreshToken() { }
