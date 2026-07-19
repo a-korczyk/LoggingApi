@@ -29,4 +29,13 @@ public interface IRefreshTokenRepository
     Task<ICollection<RefreshToken>> GetByUserIdAsync(
         Guid userId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves all valid refresh tokens belonging to a user.
+    /// A valid refresh token isn't revoked and has an expiration
+    /// date in the future.
+    /// </summary>
+    Task<ICollection<RefreshToken>> GetValidByUserIdAsync(
+        Guid userId,
+        CancellationToken cancellationToken);
 }

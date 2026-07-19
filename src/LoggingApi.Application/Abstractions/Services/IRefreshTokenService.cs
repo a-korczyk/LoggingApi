@@ -32,9 +32,9 @@ public interface IRefreshTokenService
         CancellationToken cancellationToken);
     
     /// <summary>
-    /// Revokes all refresh tokens belonging to a user.
+    /// Revokes all valid refresh tokens belonging to a user.
     /// </summary>
-    Task RevokeByUserIdAsync(
+    Task RevokeValidByUserIdAsync(
         Guid userId,
         CancellationToken cancellationToken);
 }

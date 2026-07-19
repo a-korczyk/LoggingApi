@@ -67,11 +67,11 @@ public sealed class RefreshTokenService(
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
     
-    public async Task RevokeByUserIdAsync(
+    public async Task RevokeValidByUserIdAsync(
         Guid userId,
         CancellationToken cancellationToken)
     {
-        var userRefreshTokens = await refreshTokenRepository.GetByUserIdAsync(
+        var userRefreshTokens = await refreshTokenRepository.GetValidByUserIdAsync(
             userId,
             cancellationToken);
 
