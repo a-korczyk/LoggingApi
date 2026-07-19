@@ -227,4 +227,32 @@ public class AuthController(IMediator mediator) : ControllerBase
 
         return Ok(response.Value);
     }
+
+    /// <summary>
+    /// Gets a user a new access token and rotates their refresh token.
+    /// </summary>
+    [HttpPost("refresh")]
+    [Authorize]
+    [ProducesResponseType<ConfirmTwoFactorResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Refresh(
+        [FromBody] RefreshAccessTokenCommand request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(request, cancellationToken);
+
+        if (response.IsFailure)
+            return response.Error.Code switch
+            {
+                "RefreshToken.NotFound"
+                or "RefreshToken.Expired"
+                or "RefreshToken.Revoked"
+                or _ => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: response.Error.Code,
+                    detail: response.Error.Message)
+            };
+        
+        return Ok(response.Value);
+    }
 }
