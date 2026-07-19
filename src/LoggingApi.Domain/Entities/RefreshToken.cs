@@ -18,12 +18,11 @@ public sealed class RefreshToken
     private RefreshToken() { }
 
     public RefreshToken(
-        Guid id,
         Guid userId,
         string tokenHash,
         DateTimeOffset expiresAt)
     {
-        Id = id;
+        Id = Guid.NewGuid();
         UserId = userId;
         TokenHash = tokenHash;
         CreatedAt = DateTimeOffset.UtcNow;
