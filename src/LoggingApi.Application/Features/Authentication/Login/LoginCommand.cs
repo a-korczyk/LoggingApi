@@ -25,6 +25,7 @@ public sealed class LoginCommandHandler(
     IJwtProvider jwtProvider,
     ITwoFactorChallengeRepository twoFactorChallengeRepository,
     ITokenGenerator tokenGenerator,
+    IRefreshTokenService refreshTokenService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<LoginCommand, Result<LoginResponse>>
 {
@@ -45,9 +46,15 @@ public sealed class LoginCommandHandler(
 
         if (!user.TwoFactorEnabled)
         {
-            string jwtToken = jwtProvider.CreateToken(user);
+            string accessToken = jwtProvider.CreateToken(user);
+
+            string refreshToken = await refreshTokenService.CreateAsync(
+                user.Id,
+                cancellationToken);
+            
             return new LoginResponse(
-                JwtToken: jwtToken,
+                AccessToken: accessToken,
+                RefreshToken: refreshToken,
                 TwoFactorToken: null,
                 RequiresTwoFactor: false);
         }
@@ -75,7 +82,8 @@ public sealed class LoginCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new LoginResponse(
-            JwtToken: null,
+            AccessToken: null,
+            RefreshToken: null,
             TwoFactorToken: twoFactorToken,
             RequiresTwoFactor: true);
     }
@@ -86,7 +94,8 @@ public sealed class LoginCommandHandler(
 /// JWT or a 2FA challenge token.
 /// </summary>
 public sealed record LoginResponse(
-    string? JwtToken,
+    string? AccessToken,
+    string? RefreshToken,
     string? TwoFactorToken,
     bool RequiresTwoFactor);
 

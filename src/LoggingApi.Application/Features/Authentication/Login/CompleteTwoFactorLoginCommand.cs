@@ -21,6 +21,7 @@ public sealed class CompleteTwoFactorLoginCommandHandler(
     ITwoFactorService twoFactorService,
     ITokenGenerator tokenGenerator,
     IUnitOfWork unitOfWork,
+    IRefreshTokenService refreshTokenService,
     IJwtProvider jwtProvider) : IRequestHandler<CompleteTwoFactorLoginCommand, Result<CompleteTwoFactorLoginResponse>>
 {
     public async Task<Result<CompleteTwoFactorLoginResponse>> Handle(CompleteTwoFactorLoginCommand request, CancellationToken cancellationToken)
@@ -55,9 +56,15 @@ public sealed class CompleteTwoFactorLoginCommandHandler(
         twoFactorChallengeRepository.Delete(challenge);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var jwtToken = jwtProvider.CreateToken(user);
+        var accessToken = jwtProvider.CreateToken(user);
         
-        return new CompleteTwoFactorLoginResponse(jwtToken);
+        string refreshToken = await refreshTokenService.CreateAsync(
+            user.Id,
+            cancellationToken);
+        
+        return new CompleteTwoFactorLoginResponse(
+            accessToken,
+            refreshToken);
     }
 }
 
@@ -65,7 +72,8 @@ public sealed class CompleteTwoFactorLoginCommandHandler(
 /// Represents a successful login with 2FA. 
 /// </summary>
 public sealed record CompleteTwoFactorLoginResponse(
-    string JwtToken);
+    string AccessToken,
+    string RefreshToken);
 
 public sealed class CompleteTwoFactorLoginCommandValidator : AbstractValidator<CompleteTwoFactorLoginCommand>
 {

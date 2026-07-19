@@ -98,6 +98,27 @@ public static class TwoFactorErrors
 }
 
 /// <summary>
+/// Contains application errors related to refresh tokens.
+/// </summary>
+public static class RefreshTokenErrors
+{
+    public static readonly Error NotFound =
+        new(
+            "RefreshToken.NotFound",
+            "No such refresh token could be found.");
+    
+    public static readonly Error Expired =
+        new(
+            "RefreshToken.Expired",
+            "The provided token has expired.");
+    
+    public static readonly Error Revoked =
+        new(
+            "RefreshToken.Revoked",
+            "The provided token has been revoked.");
+}
+
+/// <summary>
 /// Contains application errors related to logs.
 /// </summary>
 public sealed class LogErrors
