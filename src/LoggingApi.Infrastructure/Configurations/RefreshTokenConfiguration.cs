@@ -11,12 +11,14 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
         builder.HasKey(x => x.Id);
 
         builder.HasOne(x => x.User)
-            .WithOne(x => x.RefreshToken)
-            .HasForeignKey<RefreshToken>(x => x.UserId)
+            .WithMany(x => x.RefreshTokens)
+            .HasForeignKey(x => x.UserId)
             .IsRequired();
 
         builder.Property(x => x.TokenHash)
             .IsRequired();
+        builder.HasIndex(x => x.TokenHash)
+            .IsUnique();
 
         builder.Property(x => x.CreatedAt)
             .IsRequired();

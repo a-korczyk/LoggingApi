@@ -16,7 +16,7 @@ public sealed class User
     public string? TwoFactorSecret { get; private set; }
     public IList<string>? TwoFactorRecoveryCodes { get; private set; }
     
-    public RefreshToken RefreshToken { get; private set; }
+    public ICollection<RefreshToken> RefreshTokens { get; private set; } = new List<RefreshToken>();
     
     // Required by EF Core
     private User() { }
