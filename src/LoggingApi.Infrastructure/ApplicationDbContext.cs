@@ -19,6 +19,8 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
     
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    
     public DbSet<Log> Logs => Set<Log>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
