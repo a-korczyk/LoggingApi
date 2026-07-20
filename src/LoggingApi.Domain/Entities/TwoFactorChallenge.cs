@@ -38,6 +38,7 @@ public sealed class TwoFactorChallenge
     {
         TokenHash = newTokenHash;
         TwoFactorChallengePurpose = newPurpose;
+        ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(10);
     }
     
     /// <summary>
