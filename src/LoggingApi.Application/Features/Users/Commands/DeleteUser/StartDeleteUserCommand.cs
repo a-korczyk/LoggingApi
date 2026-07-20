@@ -8,6 +8,9 @@ using MediatR;
 
 namespace LoggingApi.Application.Features.Users.Commands.DeleteUser;
 
+/// <summary>
+/// Starts the process of deleting a user's account.
+/// </summary>
 public sealed record StartDeleteUserCommand(
     Guid UserId) : IRequest<Result<StartDeleteUserResponse>>;
 
@@ -20,12 +23,17 @@ public sealed class StartDeleteUserCommandHandler(
 {
     public async Task<Result<StartDeleteUserResponse>> Handle(StartDeleteUserCommand request, CancellationToken cancellationToken)
     {
+        // Prevent deleting other users
         if (request.UserId != currentUser.GetUserId())
             return UserErrors.NotFound;
         
         var user = await userRepository.GetByIdAsync(
             currentUser.GetUserId(),
             cancellationToken);
+
+        // Check if user has 2FA enabled
+        if (user.TwoFactorEnabled is false)
+            return UserErrors.TwoFactorRequired;
         
         var existingChallenge = await twoFactorChallengeRepository.GetAsync(user.Id, cancellationToken);
         var twoFactorToken = tokenGenerator.GenerateToken();
@@ -49,12 +57,15 @@ public sealed class StartDeleteUserCommandHandler(
         
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new StartDeleteUserResponse(twoFactorToken);
+        return new StartDeleteUserResponse(
+            true,
+            twoFactorToken);
     }
 }
 
 public sealed record StartDeleteUserResponse(
-    string TwoFactorToken);
+    bool TwoFactorRequired,
+    string? TwoFactorToken);
 
 public sealed class StartDeleteUserCommandValidator : AbstractValidator<StartDeleteUserCommand>
 {

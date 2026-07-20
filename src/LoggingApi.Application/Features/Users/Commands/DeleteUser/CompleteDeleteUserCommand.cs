@@ -8,6 +8,9 @@ using MediatR;
 
 namespace LoggingApi.Application.Features.Users.Commands.DeleteUser;
 
+/// <summary>
+/// Finishes the process of deleting a user's account.
+/// </summary>
 public sealed record CompleteDeleteUserCommand(
     Guid UserId,
     string TwoFactorToken,
@@ -27,11 +30,11 @@ public sealed class CompleteDeleteUserCommandHandler(
             tokenGenerator.HashToken(request.TwoFactorToken),
             cancellationToken);
         
-        // Check challenge
         var challegeValidation = TwoFactorChallenge.ValidateChallenge(
             challenge,
-            TwoFactorChallengePurpose.Login);
+            TwoFactorChallengePurpose.DeleteAccount);
 
+        // Check challenge
         if (challegeValidation.IsFailure)
             return challegeValidation.Error;
 

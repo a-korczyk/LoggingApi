@@ -33,4 +33,10 @@ public interface IUserRepository
     /// <param name="user">The user to insert.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     Task AddAsync(User user, CancellationToken cancellationToken);
+    
+    /// <summary>
+    /// Marks the provided user as deleted and caches the user's identifer
+    /// as recently deleted.
+    /// </summary>
+    void Delete(User user);
 }   
