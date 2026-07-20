@@ -63,6 +63,7 @@ public sealed class CompleteTwoFactorLoginCommandHandler(
             cancellationToken);
         
         return new CompleteTwoFactorLoginResponse(
+            user.Id,
             accessToken,
             refreshToken);
     }
@@ -72,6 +73,7 @@ public sealed class CompleteTwoFactorLoginCommandHandler(
 /// Represents a successful login with 2FA. 
 /// </summary>
 public sealed record CompleteTwoFactorLoginResponse(
+    Guid UserId,
     string AccessToken,
     string RefreshToken);
 
