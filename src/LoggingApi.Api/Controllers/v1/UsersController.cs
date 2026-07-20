@@ -14,49 +14,67 @@ namespace LoggingApi.Api.Controllers.v1;
 [Produces("application/json")]
 public class UsersController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Starts the user deletion process.
+    /// </summary>
     [HttpDelete("{id:guid}")]
     [Authorize]
+    [ProducesResponseType<StartDeleteUserCommand>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> StartDeleteUser(
-        [FromRoute] Guid userId,
-        [FromBody] StartDeleteUserCommand request,
+        Guid id,
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(
-            request with { UserId = userId},
+            new StartDeleteUserCommand(id),
             cancellationToken);
 
         if (response.IsFailure)
             return response.Error.Code switch
             {
+                "Users.TwoFactorRequired" => Problem(
+                    statusCode: StatusCodes.Status401Unauthorized,
+                    title: response.Error.Code,
+                    detail: response.Error.Message),
                 _ => Problem(
                     statusCode: StatusCodes.Status400BadRequest,
                     title: response.Error.Code,
                     detail: response.Error.Message)
             };
         
-        return Ok(response);
+        return Ok(response.Value);
     }
     
+    /// <summary>
+    /// Completes the user deletion process.
+    /// </summary>
     [HttpDelete("{id:guid}/confirm-deletion")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CompleteDeleteUser(
-        [FromRoute] Guid userId,
+        Guid id,
         [FromBody] CompleteDeleteUserCommand request,
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(
-            request with { UserId = userId},
+            request with { UserId = id},
             cancellationToken);
 
         if (response.IsFailure)
             return response.Error.Code switch
             {
-                _ => Problem(
+                "TwoFactor.NoChallengeFound" 
+                or "TwoFactor.ExpiredChallenge" 
+                or "TwoFactor.InvalidToken" 
+                or "TwoFactor.InvalidTotpCode" 
+                or _ => Problem(
                     statusCode: StatusCodes.Status400BadRequest,
                     title: response.Error.Code,
                     detail: response.Error.Message)
             };
         
-        return Ok(response);
+        return Ok();
     }
 }
