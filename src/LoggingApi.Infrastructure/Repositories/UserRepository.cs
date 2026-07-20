@@ -1,14 +1,22 @@
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Domain.Entities;
+using LoggingApi.Infrastructure.Services;
+using LoggingApi.Infrastructure.Services.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace LoggingApi.Infrastructure.Repositories;
 
 /// <summary>
 /// Implementation of <see cref="IUserRepository"/>
 /// </summary>
-public sealed class UserRepository(ApplicationDbContext dbContext) : IUserRepository
+public sealed class UserRepository(
+    ApplicationDbContext dbContext,
+    ICacheService cacheService,
+    IOptions<AccessTokenOptions> accessTokenOptions) : IUserRepository
 {
+    private readonly AccessTokenOptions _accessTokenOptions = accessTokenOptions.Value;
+    
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await dbContext.Users.FindAsync(id, cancellationToken);
@@ -25,5 +33,15 @@ public sealed class UserRepository(ApplicationDbContext dbContext) : IUserReposi
     {
         await dbContext.Users.AddAsync(user, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public void Delete(
+        User user)
+    {
+        dbContext.Users.Remove(user);
+        cacheService.SetAsync(
+            $"deleted:users:{user.Id}",
+            true,
+            TimeSpan.FromMinutes(_accessTokenOptions.ExpirationInMinutes));
     }
 }

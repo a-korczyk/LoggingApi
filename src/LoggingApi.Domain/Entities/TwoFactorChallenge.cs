@@ -38,6 +38,7 @@ public sealed class TwoFactorChallenge
     {
         TokenHash = newTokenHash;
         TwoFactorChallengePurpose = newPurpose;
+        ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(10);
     }
     
     /// <summary>
@@ -74,4 +75,5 @@ public enum TwoFactorChallengePurpose
 {
     Confirm2FaSetup = 0,
     Login = 1,
+    DeleteAccount = 2
 }

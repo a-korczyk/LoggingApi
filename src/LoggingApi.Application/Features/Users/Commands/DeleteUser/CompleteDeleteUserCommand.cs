@@ -6,81 +6,74 @@ using LoggingApi.Domain.Common;
 using LoggingApi.Domain.Entities;
 using MediatR;
 
-namespace LoggingApi.Application.Features.Authentication.Login;
+namespace LoggingApi.Application.Features.Users.Commands.DeleteUser;
 
 /// <summary>
-/// Completes the login flow by verifying the user's 2FA code.
+/// Finishes the process of deleting a user's account.
 /// </summary>
-public sealed record CompleteTwoFactorLoginCommand(
+public sealed record CompleteDeleteUserCommand(
+    Guid UserId,
     string TwoFactorToken,
-    string TotpCode) : IRequest<Result<CompleteTwoFactorLoginResponse>>;
+    string TotpCode) : IRequest<Result>;
 
-public sealed class CompleteTwoFactorLoginCommandHandler(
-    IUserRepository userRepository,
+public sealed class CompleteDeleteUserCommandHandler(
     ITwoFactorChallengeRepository twoFactorChallengeRepository,
     ITwoFactorService twoFactorService,
-    ITokenGenerator tokenGenerator,
-    IUnitOfWork unitOfWork,
     IRefreshTokenService refreshTokenService,
-    IJwtProvider jwtProvider) : IRequestHandler<CompleteTwoFactorLoginCommand, Result<CompleteTwoFactorLoginResponse>>
+    ITokenGenerator tokenGenerator,
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork) : IRequestHandler<CompleteDeleteUserCommand, Result>
 {
-    public async Task<Result<CompleteTwoFactorLoginResponse>> Handle(CompleteTwoFactorLoginCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CompleteDeleteUserCommand request, CancellationToken cancellationToken)
     {
         var challenge = await twoFactorChallengeRepository.GetByTokenHashAsync(
             tokenGenerator.HashToken(request.TwoFactorToken),
             cancellationToken);
         
-        // Check challenge
         var challegeValidation = TwoFactorChallenge.ValidateChallenge(
             challenge,
-            TwoFactorChallengePurpose.Login);
+            TwoFactorChallengePurpose.DeleteAccount);
 
+        // Check challenge
         if (challegeValidation.IsFailure)
             return challegeValidation.Error;
 
         var user = await userRepository.GetByIdAsync(
             challenge.UserId,
             cancellationToken);
-        
-        // Check user
-        if (user is null)
-            return UserErrors.NotFound;
 
         var isTotpCodeValid = twoFactorService.VerifyTotpCode(
             request.TotpCode,
             user.TwoFactorSecret);
 
+        // Check totp code
         if (!isTotpCodeValid)
             return TwoFactorErrors.InvalidTotpCode;
 
+        // Delete challenge
         twoFactorChallengeRepository.Delete(challenge);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var accessToken = jwtProvider.CreateToken(user);
-        
-        string refreshToken = await refreshTokenService.CreateAsync(
+        // Revoke all refresh tokens
+        await refreshTokenService.RevokeValidByUserIdAsync(
             user.Id,
             cancellationToken);
         
-        return new CompleteTwoFactorLoginResponse(
-            user.Id,
-            accessToken,
-            refreshToken);
+        // Delete user
+        userRepository.Delete(user);
+        
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }
 
-/// <summary>
-/// Represents a successful login with 2FA. 
-/// </summary>
-public sealed record CompleteTwoFactorLoginResponse(
-    Guid UserId,
-    string AccessToken,
-    string RefreshToken);
-
-public sealed class CompleteTwoFactorLoginCommandValidator : AbstractValidator<CompleteTwoFactorLoginCommand>
+public sealed class CompleteDeleteUserCommandValidator : AbstractValidator<CompleteDeleteUserCommand>
 {
-    public CompleteTwoFactorLoginCommandValidator()
+    public CompleteDeleteUserCommandValidator()
     {
+        RuleFor(x => x.UserId)
+            .NotEmpty().WithMessage("UserId must not be empty.");
+        
         RuleFor(x => x.TwoFactorToken)
             .NotEmpty().WithMessage("TwoFactorToken must not be empty.")
             .MaximumLength(255).WithMessage("TwoFactorToken must not exceed 255 characters.");

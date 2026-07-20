@@ -1,6 +1,7 @@
 using LoggingApi.Application.Features.Authentication.Commands;
 using LoggingApi.Application.Features.Authentication.Login;
 using LoggingApi.Application.Features.Authentication.TwoFactor;
+using LoggingApi.Application.Features.Users.Commands;
 using LoggingApi.Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -254,5 +255,58 @@ public class AuthController(IMediator mediator) : ControllerBase
             };
         
         return Ok(response.Value);
+    }
+
+    /// <summary>
+    /// Logs out the user's current session.
+    /// </summary>
+    [HttpPost("logout")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> LogoutCurrentSession(
+        [FromBody] LogoutCurrentSessionCommand request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(request, cancellationToken);
+
+        if (response.IsFailure)
+            return response.Error.Code switch
+            {
+                "RefreshToken.NotFound"
+                or "RefreshToken.Expired"
+                or "RefreshToken.Revoked"
+                or _ => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: response.Error.Code,
+                    detail: response.Error.Message)
+            };
+        
+        return NoContent();
+    }
+    
+    /// <summary>
+    /// Logs out all the user's sessions.
+    /// </summary>
+    [HttpPost("logout-all")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> LogoutAllSessions(
+        [FromBody] LogoutAllSessionsCommand request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(request, cancellationToken);
+
+        if (response.IsFailure)
+            return response.Error.Code switch
+            {
+                    _ => Problem(
+                        statusCode: StatusCodes.Status400BadRequest,
+                        title: response.Error.Code,
+                        detail: response.Error.Message)
+            };
+        
+        return NoContent();
     }
 }

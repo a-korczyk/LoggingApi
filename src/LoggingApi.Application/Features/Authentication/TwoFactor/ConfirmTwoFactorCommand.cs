@@ -31,10 +31,6 @@ public sealed class ConfirmTwoFactorCommandHandler(
             currentUser.GetUserId(),
             cancellationToken);
         
-        // User related checks
-        if (user is null)
-            return UserErrors.NotFound;
-
         if (user.TwoFactorEnabled)
             return UserErrors.TwoFactorAlreadySetup;
 

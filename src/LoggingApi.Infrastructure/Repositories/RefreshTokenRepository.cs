@@ -34,4 +34,16 @@ public sealed class RefreshTokenRepository(
             .Where(x => x.UserId == userId)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<ICollection<RefreshToken>> GetValidByUserIdAsync(
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        return await dbContext.RefreshTokens
+            .Where(x => 
+                x.UserId == userId
+                && x.ExpiresAt > DateTimeOffset.UtcNow
+                && x.RevokedAt == null)
+            .ToListAsync(cancellationToken);
+    }
 }

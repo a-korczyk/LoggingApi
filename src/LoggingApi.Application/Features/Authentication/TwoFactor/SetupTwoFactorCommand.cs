@@ -25,9 +25,6 @@ public sealed class SetupTwoFactorCommandHandler(
         var user = await userRepository.GetByIdAsync(
             currentUser.GetUserId(),
             cancellationToken);
-
-        if (user is null)
-            return UserErrors.NotFound;
         
         if (user.TwoFactorEnabled)
             return UserErrors.TwoFactorAlreadySetup;

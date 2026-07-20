@@ -48,6 +48,11 @@ public static class UserErrors
         new(
             "Users.TwoFactorSetupNotRequested",
             "Two factor authentication has not been requested to be setup.");
+
+    public static readonly Error TwoFactorRequired =
+        new(
+            "Users.TwoFactorRequired",
+            "This action requires 2FA enabled.");
 }
 
 /// <summary>

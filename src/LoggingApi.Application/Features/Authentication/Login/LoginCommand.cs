@@ -53,6 +53,7 @@ public sealed class LoginCommandHandler(
                 cancellationToken);
             
             return new LoginResponse(
+                UserId: user.Id,
                 AccessToken: accessToken,
                 RefreshToken: refreshToken,
                 TwoFactorToken: null,
@@ -82,6 +83,7 @@ public sealed class LoginCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new LoginResponse(
+            UserId: user.Id,
             AccessToken: null,
             RefreshToken: null,
             TwoFactorToken: twoFactorToken,
@@ -94,6 +96,7 @@ public sealed class LoginCommandHandler(
 /// JWT or a 2FA challenge token.
 /// </summary>
 public sealed record LoginResponse(
+    Guid UserId,
     string? AccessToken,
     string? RefreshToken,
     string? TwoFactorToken,
