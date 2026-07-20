@@ -51,7 +51,7 @@ public class UsersController(IMediator mediator) : ControllerBase
     /// </summary>
     [HttpDelete("{id:guid}/confirm-deletion")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CompleteDeleteUser(
         Guid id,
@@ -75,6 +75,6 @@ public class UsersController(IMediator mediator) : ControllerBase
                     detail: response.Error.Message)
             };
         
-        return Ok();
+        return NoContent();
     }
 }
