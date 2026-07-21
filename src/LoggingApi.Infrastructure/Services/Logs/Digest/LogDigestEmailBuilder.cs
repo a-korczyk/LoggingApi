@@ -21,20 +21,21 @@ public interface ILogDigestEmailBuilder
 
 /// <inheritdoc/>
 public sealed class LogDigestEmailBuilder(
-    IServiceProvider serviceProvider,
+    IServiceScopeFactory serviceScopeFactory,
     ILogDigestStatisticsBuilder statisticsBuilder,
     IChatService chatService) : ILogDigestEmailBuilder
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = 
         new JsonSerializerOptions { WriteIndented = true };
     
-    private readonly IWorkspaceRepository _workspaceRepository = serviceProvider.GetRequiredService<IWorkspaceRepository>();
-    
     public async Task<EmailMessageDetails?> Build(
         KeyValuePair<Guid, IReadOnlyDictionary<Guid, LogDigestEntry>> workspace,
         CancellationToken cancellationToken)
     {
-        var workspaceEntity = await _workspaceRepository.GetByWorkspaceIdAsync(
+        using var scope = serviceScopeFactory.CreateScope();
+        var workspaceRepository = scope.ServiceProvider.GetRequiredService<IWorkspaceRepository>();
+        
+        var workspaceEntity = await workspaceRepository.GetByWorkspaceIdAsync(
             workspace.Key,
             cancellationToken);
 

@@ -13,13 +13,14 @@ namespace LoggingApi.Infrastructure.Services.Logs.Digest;
 public sealed class LogDigestBackgroundService(
     ILogDigestQueue logDigestQueue,
     ILogDigestEmailBuilder logDigestEmailBuilder,
-    IServiceProvider serviceProvider,
+    IServiceScopeFactory serviceScopeFactory,
     IEmailSender emailSender) : BackgroundService
 {
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
-        var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
+        using var scope = serviceScopeFactory.CreateScope();
+        var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -34,7 +35,7 @@ public sealed class LogDigestBackgroundService(
                 if (genericMessage is null)
                     continue;
 
-                var currentPage = 0;
+                var currentPage = 1;
                 var pageSize = 100;
                 while (true)
                 {
@@ -64,7 +65,7 @@ public sealed class LogDigestBackgroundService(
                 }
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(0.5), stoppingToken);
         }
 
     }

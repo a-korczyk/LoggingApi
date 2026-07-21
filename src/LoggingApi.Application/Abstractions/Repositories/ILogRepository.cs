@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using LoggingApi.Application.Features.Logs.Queries;
 using LoggingApi.Domain.Entities;
 
@@ -57,7 +58,10 @@ public sealed record Pagination(
    int Page,
    int PageSize)
 {
+   [Range(1, int.MaxValue)] 
    public const int DefaultPage = 1;
+   
+   [Range(1, 100)]
    public const int DefaultPageSize = 20;
 };
 
