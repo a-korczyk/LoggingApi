@@ -75,6 +75,7 @@ public static class DependencyInjection
         // Workspaces
         services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
         services.AddScoped<IWorkspaceUserRepository, WorkspaceUserRepository>();
+        services.AddScoped<IWorkspaceService, WorkspaceService>();
 
         // Logs
         services.AddScoped<ILogRepository, LogRepository>();
