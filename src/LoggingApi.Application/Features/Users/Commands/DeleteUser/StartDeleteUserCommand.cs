@@ -49,7 +49,6 @@ public sealed class StartDeleteUserCommandHandler(
             await twoFactorChallengeRepository.AddAsync(
                 new(
                     user.Id,
-                    user,
                     tokenGenerator.HashToken(twoFactorToken),
                     TwoFactorChallengePurpose.DeleteAccount),
                 cancellationToken);
