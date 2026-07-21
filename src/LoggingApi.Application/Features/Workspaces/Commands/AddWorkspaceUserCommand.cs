@@ -20,7 +20,6 @@ public sealed record AddWorkspaceUserCommand(
 public sealed class AddWorkspaceUserCommandHandler(
     IWorkspaceRepository workspaceRepository,
     IWorkspaceUserRepository workspaceUserRepository,
-    IUserRepository userRepository,
     ICurrentUser currentUser,
     IUnitOfWork unitOfWork) : IRequestHandler<AddWorkspaceUserCommand, Result>
 {
@@ -41,10 +40,6 @@ public sealed class AddWorkspaceUserCommandHandler(
         
         if (isRequestingUserAuthorized is false)
             return WorkspaceErrors.ActionForbidden;
-        
-        // Does target user exist
-        if (await userRepository.GetByIdAsync(request.UserId, cancellationToken) is null)
-            return UserErrors.NotFound;
         
         // Does target user already exist in the workspace
         var isTargetUserInWorkspace = await workspaceUserRepository.IsMemberAsync(
