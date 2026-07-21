@@ -2,6 +2,7 @@ using System.Text.Json;
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Application.Abstractions.Services.Email;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LoggingApi.Infrastructure.Services.Logs.Digest;
 
@@ -20,18 +21,20 @@ public interface ILogDigestEmailBuilder
 
 /// <inheritdoc/>
 public sealed class LogDigestEmailBuilder(
-    IWorkspaceRepository workspaceRepository,
+    IServiceProvider serviceProvider,
     ILogDigestStatisticsBuilder statisticsBuilder,
     IChatService chatService) : ILogDigestEmailBuilder
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = 
         new JsonSerializerOptions { WriteIndented = true };
     
+    private readonly IWorkspaceRepository _workspaceRepository = serviceProvider.GetRequiredService<IWorkspaceRepository>();
+    
     public async Task<EmailMessageDetails?> Build(
         KeyValuePair<Guid, IReadOnlyDictionary<Guid, LogDigestEntry>> workspace,
         CancellationToken cancellationToken)
     {
-        var workspaceEntity = await workspaceRepository.GetByWorkspaceIdAsync(
+        var workspaceEntity = await _workspaceRepository.GetByWorkspaceIdAsync(
             workspace.Key,
             cancellationToken);
 

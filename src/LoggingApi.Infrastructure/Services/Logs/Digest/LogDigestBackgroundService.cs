@@ -1,5 +1,6 @@
 using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using IEmailSender = LoggingApi.Application.Abstractions.Services.Email.IEmailSender;
 
@@ -12,12 +13,14 @@ namespace LoggingApi.Infrastructure.Services.Logs.Digest;
 public sealed class LogDigestBackgroundService(
     ILogDigestQueue logDigestQueue,
     ILogDigestEmailBuilder logDigestEmailBuilder,
-    IUserRepository userRepository, 
+    IServiceProvider serviceProvider,
     IEmailSender emailSender) : BackgroundService
 {
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
+        var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             var workspaces = await logDigestQueue.TakeWorkspacesAsync();
