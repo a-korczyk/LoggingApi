@@ -9,6 +9,10 @@ using MediatR;
 
 namespace LoggingApi.Application.Features.Workspaces.Commands.TransferOwnership;
 
+/// <summary>
+/// Completes the workspace ownership transfer process.
+/// </summary>
+/// <param name="TargetUserId">User identifier of the new owner.</param>
 public sealed record CompleteTransferOwnershipCommand(
     Guid WorkspaceId,
     Guid TargetUserId,
