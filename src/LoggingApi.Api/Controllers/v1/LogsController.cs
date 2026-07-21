@@ -11,7 +11,7 @@ namespace LoggingApi.Api.Controllers.v1;
 /// </summary>
 [Authorize]
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/workspaces/{workspaceId:guid}/[controller]")]
 [Consumes("application/json")]
 [Produces("application/json")]
 public class LogsController(IMediator mediator) : ControllerBase
@@ -26,10 +26,13 @@ public class LogsController(IMediator mediator) : ControllerBase
     [ProducesResponseType<AddLogResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddLog(
+        [FromRoute] Guid workspaceId,
         [FromBody] AddLogCommand request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(request, cancellationToken);
+        var response = await mediator.Send(
+            request with { WorkspaceId = workspaceId },
+            cancellationToken);
 
         if (response.IsFailure)
             return response.Error.Code switch
@@ -49,6 +52,10 @@ public class LogsController(IMediator mediator) : ControllerBase
     /// <summary>
     /// Returns the log with the given identifier.
     /// </summary>
+    /// <remarks>
+    /// Internally checks if the authenticated user is a member
+    /// of the workspace that the log is in.
+    /// </remarks>
     /// <param name="id">The identifier of the log.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns><see cref="LogResponse"/> or an error.</returns>
@@ -90,10 +97,13 @@ public class LogsController(IMediator mediator) : ControllerBase
     [ProducesResponseType<GetLogsResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetLogs(
+        [FromRoute] Guid workspaceId,
         [FromQuery] GetLogsQuery request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(request, cancellationToken);
+        var response = await mediator.Send(
+            request with { WorkspaceId = workspaceId },
+            cancellationToken);
         
         if (response.IsFailure)
             return response.Error.Code switch
@@ -119,12 +129,17 @@ public class LogsController(IMediator mediator) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateLog(
+        [FromRoute] Guid workspaceId,
         [FromRoute] Guid id,
         [FromBody] UpdateLogCommand request,
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(
-            request with { Id = id }, 
+            request with
+            {
+                WorkspaceId = workspaceId,
+                Id = id
+            }, 
             cancellationToken);
         
         if (response.IsFailure)
@@ -146,6 +161,10 @@ public class LogsController(IMediator mediator) : ControllerBase
     /// <summary>
     /// Deletes the provided log.
     /// </summary>
+    /// <remarks>
+    /// Internally checks if the authenticated user is a member
+    /// of the workspace that the log is in.
+    /// </remarks>
     /// <param name="id">The log's identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns><see cref="OkResult"/> or an error.</returns>
