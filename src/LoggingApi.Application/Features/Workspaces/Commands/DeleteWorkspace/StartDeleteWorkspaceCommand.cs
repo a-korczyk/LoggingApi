@@ -13,7 +13,7 @@ namespace LoggingApi.Application.Features.Workspaces.Commands.DeleteWorkspace;
 /// </summary>
 /// <param name="WorkspaceId"></param>
 public sealed record StartDeleteWorkspaceCommand(
-    Guid WorkspaceId) : IRequest<Result<StartDeleteWorkspaceResult>>;
+    Guid WorkspaceId) : IRequest<Result<StartDeleteWorkspaceResponse>>;
     
 public sealed class StartDeleteWorkspaceCommandHandler(
     IWorkspaceRepository workspaceRepository,
@@ -21,9 +21,9 @@ public sealed class StartDeleteWorkspaceCommandHandler(
     IUserRepository userRepository,
     ITokenGenerator tokenGenerator,
     IUnitOfWork unitOfWork,
-    ICurrentUser currentUser) : IRequestHandler<StartDeleteWorkspaceCommand, Result<StartDeleteWorkspaceResult>>
+    ICurrentUser currentUser) : IRequestHandler<StartDeleteWorkspaceCommand, Result<StartDeleteWorkspaceResponse>>
 {
-    public async Task<Result<StartDeleteWorkspaceResult>> Handle(StartDeleteWorkspaceCommand request, CancellationToken cancellationToken)
+    public async Task<Result<StartDeleteWorkspaceResponse>> Handle(StartDeleteWorkspaceCommand request, CancellationToken cancellationToken)
     {
         var workspace = await workspaceRepository.GetByWorkspaceIdAsync(
             request.WorkspaceId,
@@ -66,12 +66,12 @@ public sealed class StartDeleteWorkspaceCommandHandler(
         
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new StartDeleteWorkspaceResult(
+        return new StartDeleteWorkspaceResponse(
             twoFactorToken);
     }
 }
 
-public sealed record StartDeleteWorkspaceResult(
+public sealed record StartDeleteWorkspaceResponse(
     string twoFactorToken);
 
 public sealed class StartDeleteWorkspaceCommandValidator : AbstractValidator<StartDeleteWorkspaceCommand>
