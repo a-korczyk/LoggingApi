@@ -12,6 +12,9 @@ public sealed class WorkspaceUserConfiguration : IEntityTypeConfiguration<Worksp
     public void Configure(EntityTypeBuilder<WorkspaceUser> builder)
     {
         builder
+            .HasKey(x => new { x.WorkspaceId, x.UserId });
+        
+        builder
             .HasOne(x => x.Workspace)
             .WithMany(x => x.WorkspaceUsers)
             .HasForeignKey(x => x.WorkspaceId)
