@@ -32,4 +32,7 @@ public sealed class Workspace
         Name = name;
         CreatedAt = DateTimeOffset.UtcNow;
     }
+    
+    public void TransferOwnership(Guid newOwnerUserId) 
+        => OwnerUserId = newOwnerUserId;
 }

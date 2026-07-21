@@ -98,3 +98,21 @@ public static class AuthEmailTemplates
             This email was generated automatically by LoggingApi.
             """);
 }
+
+/// <summary>
+/// Provides predefined email templates for workspace related notifications.
+/// </summary>
+public static class WorkspaceEmailTemplates
+{
+    public static EmailTemplate OwnerOfNewWorkspace(string workspaceName) =>
+        new(
+            $"You're now the owner of {workspaceName}  - LoggingApi",
+            $"""
+             # Owner of {workspaceName}
+                    
+             Ownership of {workspaceName} has been transferred to you.
+                    
+                    
+             This email was generated automatically by LoggingApi.
+             """);
+}
