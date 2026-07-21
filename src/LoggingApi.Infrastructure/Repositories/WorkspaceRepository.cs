@@ -34,6 +34,18 @@ public sealed class WorkspaceRepository(
             cancellationToken);
     }
 
+    public async Task<ICollection<Workspace>> GetByUserIdAsync(
+        Guid userId,
+        Pagination pagination,
+        CancellationToken cancellationToken)
+    {
+        return await dbContext.Workspaces
+            .Where(x => x.WorkspaceUsers.Any(wu => wu.UserId == userId))
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<ICollection<Workspace>> GetByOwnerUserIdAsync(
         Guid ownerUserId,
         Pagination pagination,

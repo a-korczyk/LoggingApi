@@ -29,6 +29,16 @@ public interface IWorkspaceRepository
         CancellationToken cancellationToken);
 
     /// <summary>
+    /// Retrieves a paginated collection of all workspaces a
+    /// user is a member. 
+    /// </summary>
+    /// <returns></returns>
+    Task<ICollection<Workspace>> GetByUserIdAsync(
+        Guid userId,
+        Pagination pagination,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// Retrieves all workspaces that are owned by a user.
     /// </summary>
     /// <param name="ownerUserId">The identifier of the owner.</param>
