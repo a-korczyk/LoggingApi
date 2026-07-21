@@ -45,7 +45,11 @@ public class LogsController(IMediator mediator) : ControllerBase
 
         return CreatedAtAction(
             nameof(GetLogById),
-            new { id = response.Value!.Id},
+            new
+            {
+                workspaceId = workspaceId,
+                id = response.Value!.Id
+            },
             response.Value);
     }
     
