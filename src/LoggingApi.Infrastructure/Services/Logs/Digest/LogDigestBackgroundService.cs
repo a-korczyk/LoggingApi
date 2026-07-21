@@ -20,7 +20,7 @@ public sealed class LogDigestBackgroundService(
         CancellationToken stoppingToken)
     {
         using var scope = serviceScopeFactory.CreateScope();
-        var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var workspaceService = scope.ServiceProvider.GetRequiredService<IWorkspaceService>();
         
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -34,38 +34,14 @@ public sealed class LogDigestBackgroundService(
                 
                 if (genericMessage is null)
                     continue;
-
-                var currentPage = 1;
-                var pageSize = 100;
-                while (true)
-                {
-                    var workspaceUsers = await userRepository.GetByWorkspaceId(
-                        workspace.Key,
-                        new Pagination(
-                            currentPage,
-                            pageSize),
-                        stoppingToken);
-
-                    if (!workspaceUsers.Any())
-                        break;
-
-                    foreach (var user in workspaceUsers)
-                    {
-                        var message = genericMessage with { RecipientEmail =  user.Email };
-                        
-                        await emailSender.SendAsync(
-                            message,
-                            stoppingToken);
-                    }
-                    
-                    if (workspaceUsers.Count < pageSize)
-                        break;
-
-                    currentPage++;
-                }
+                
+                await workspaceService.SendEmailToEveryMemberAsync(
+                    workspace.Key,
+                    genericMessage, 
+                    stoppingToken);
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(0.5), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(0.5), stoppingToken); //todo change to 30 minutes!
         }
 
     }
