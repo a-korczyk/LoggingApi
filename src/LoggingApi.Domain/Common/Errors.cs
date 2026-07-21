@@ -53,6 +53,11 @@ public static class UserErrors
         new(
             "Users.TwoFactorRequired",
             "This action requires 2FA enabled.");
+
+    public static readonly Error WorkspaceOwner =
+        new(
+            "Users.WorkspaceOwner",
+            "User is a workspace owner.");
 }
 
 /// <summary>
