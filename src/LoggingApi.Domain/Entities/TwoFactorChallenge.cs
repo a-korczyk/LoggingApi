@@ -73,5 +73,6 @@ public enum TwoFactorChallengePurpose
 {
     Confirm2FaSetup = 0,
     Login = 1,
-    DeleteAccount = 2
+    DeleteAccount = 2,
+    DeleteWorkspace = 3
 }
