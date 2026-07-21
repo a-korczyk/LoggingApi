@@ -41,6 +41,7 @@ public sealed class WorkspaceRepository(
     {
         return await dbContext.Workspaces
             .Where(x => x.WorkspaceUsers.Any(wu => wu.UserId == userId))
+            .OrderByDescending(x => x.Id)
             .Skip((pagination.Page - 1) * pagination.PageSize)
             .Take(pagination.PageSize)
             .ToListAsync(cancellationToken);
@@ -53,6 +54,7 @@ public sealed class WorkspaceRepository(
     {
         return await dbContext.Workspaces
             .Where(x => x.OwnerUserId == ownerUserId)
+            .OrderByDescending(x => x.OwnerUserId)
             .Skip((pagination.Page - 1) * pagination.PageSize)
             .Take(pagination.PageSize)
             .ToListAsync(cancellationToken);

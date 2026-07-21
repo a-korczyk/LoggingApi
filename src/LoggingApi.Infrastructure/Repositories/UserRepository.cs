@@ -36,6 +36,7 @@ public sealed class UserRepository(
     {
         return await dbContext.WorkspaceUsers
             .Where(x => x.WorkspaceId == workspaceId)
+            .OrderByDescending(x => x.WorkspaceId)
             .Select(x => x.User)
             .Skip((pagination.Page - 1) * pagination.PageSize)
             .Take(pagination.PageSize)
