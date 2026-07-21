@@ -63,7 +63,7 @@ public sealed class StartOwnershipTransferCommandHandler(
         
         // Check if target user is member of workspace
         if (targetWorkspaceUser is null)
-            return WorkspaceErrors.NotFound;
+            return WorkspaceErrors.UserNotFound;
         
         var existingChallenge = await twoFactorChallengeRepository.GetAsync(userId, cancellationToken);
         var twoFactorToken = tokenGenerator.GenerateToken();
