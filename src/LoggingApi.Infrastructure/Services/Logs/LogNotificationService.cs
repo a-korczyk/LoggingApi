@@ -9,7 +9,7 @@ namespace LoggingApi.Infrastructure.Services.Logs;
 
 /// <inheritdoc/>
 public sealed class LogNotificationService(
-    IEmailSender emailSender,
+    IWorkspaceService workspaceService,
     ICacheService cacheService,
     IConfiguration configuration) : ILogNotificationService
 {
@@ -46,9 +46,10 @@ public sealed class LogNotificationService(
             _ => throw new InvalidOperationException("Unsupported critical error status.")
         };
 
-        await emailSender.SendAsync(
+        await workspaceService.SendEmailToEveryMemberAsync(
+            log.WorkspaceId,
             new(
-                user.Email,
+                null,
                 null,
                 emailTemplate.Subject,
                 emailTemplate.Body), 
