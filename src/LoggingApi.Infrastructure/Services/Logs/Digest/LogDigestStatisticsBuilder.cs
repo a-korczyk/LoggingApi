@@ -4,7 +4,7 @@ using LoggingApi.Domain.Entities;
 namespace LoggingApi.Infrastructure.Services.Logs.Digest;
 
 /// <summary>
-/// Generates statistics based on a recipient's <see cref="LogDigestEntry"/>s.
+/// Generates statistics based on a workspace's <see cref="LogDigestEntry"/>s.
 /// </summary>
 public interface ILogDigestStatisticsBuilder
 {

@@ -47,7 +47,6 @@ public sealed class SetupTwoFactorCommandHandler(
             await twoFactorChallengeRepository.AddAsync(
                 new(
                     user.Id,
-                    user,
                     tokenGenerator.HashToken(twoFactorToken),
                     TwoFactorChallengePurpose.Confirm2FaSetup),
                 cancellationToken);

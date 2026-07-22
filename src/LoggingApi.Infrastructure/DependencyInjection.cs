@@ -71,6 +71,11 @@ public static class DependencyInjection
         // Refresh token
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        
+        // Workspaces
+        services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
+        services.AddScoped<IWorkspaceUserRepository, WorkspaceUserRepository>();
+        services.AddScoped<IWorkspaceService, WorkspaceService>();
 
         // Logs
         services.AddScoped<ILogRepository, LogRepository>();

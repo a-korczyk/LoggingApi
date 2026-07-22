@@ -9,8 +9,11 @@ public sealed class Log
 {
     public Guid Id { get; private set; }
     
-    public Guid UserId { get; private set; }
-    public User User { get; private set; }
+    public Guid WorkspaceId { get; private set; }
+    public Workspace Workspace { get; private set; }
+    
+    public Guid CreatedByUserId { get; private set; }
+    public User CreatedByUser { get; private set; }
     
     public LogStatus Status { get; private set; }
     public LogType Type { get; private set; }
@@ -26,16 +29,16 @@ public sealed class Log
     private Log() { }
 
     public Log(
-        Guid userId,
-        User user,
+        Guid workspaceId,
+        Guid createdByUserId,
         LogType type,
         string title,
         JsonDocument data)
     {
         Id = Guid.NewGuid();
         
-        UserId = userId;
-        User = user;
+        WorkspaceId = workspaceId;
+        CreatedByUserId = createdByUserId;
 
         Status = LogStatus.Pending;
         Type = type;

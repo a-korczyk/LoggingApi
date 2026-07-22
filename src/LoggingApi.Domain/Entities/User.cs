@@ -18,6 +18,11 @@ public sealed class User
     
     public ICollection<RefreshToken> RefreshTokens { get; private set; } = new List<RefreshToken>();
     
+    public ICollection<WorkspaceUser> WorkspaceUsers { get; private set; } = new List<WorkspaceUser>();
+    public ICollection<Workspace> OwnedWorkspaces { get; private set; } = new List<Workspace>();
+    
+    public ICollection<Log> CreatedLogs { get; private set; } = new List<Log>();
+    
     // Required by EF Core
     private User() { }
 

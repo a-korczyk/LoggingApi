@@ -1,6 +1,8 @@
 using System.Text.Json;
+using LoggingApi.Application.Abstractions.Repositories;
 using LoggingApi.Application.Abstractions.Services;
 using LoggingApi.Application.Abstractions.Services.Email;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LoggingApi.Infrastructure.Services.Logs.Digest;
 
@@ -9,27 +11,41 @@ namespace LoggingApi.Infrastructure.Services.Logs.Digest;
 /// </summary>
 public interface ILogDigestEmailBuilder
 {
-    public Task<EmailMessageDetails> Build(
-        KeyValuePair<string, IReadOnlyDictionary<Guid, LogDigestEntry>> recipient,
+    /// <remarks>
+    /// Builds a generic email message with no recipient email set.
+    /// </remarks>
+    public Task<EmailMessageDetails?> Build(
+        KeyValuePair<Guid, IReadOnlyDictionary<Guid, LogDigestEntry>> workspace,
         CancellationToken cancellationToken);
 }
 
 /// <inheritdoc/>
 public sealed class LogDigestEmailBuilder(
+    IServiceScopeFactory serviceScopeFactory,
     ILogDigestStatisticsBuilder statisticsBuilder,
     IChatService chatService) : ILogDigestEmailBuilder
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = 
         new JsonSerializerOptions { WriteIndented = true };
     
-    public async Task<EmailMessageDetails> Build(
-        KeyValuePair<string, IReadOnlyDictionary<Guid, LogDigestEntry>> recipient,
+    public async Task<EmailMessageDetails?> Build(
+        KeyValuePair<Guid, IReadOnlyDictionary<Guid, LogDigestEntry>> workspace,
         CancellationToken cancellationToken)
     {
+        using var scope = serviceScopeFactory.CreateScope();
+        var workspaceRepository = scope.ServiceProvider.GetRequiredService<IWorkspaceRepository>();
+        
+        var workspaceEntity = await workspaceRepository.GetByWorkspaceIdAsync(
+            workspace.Key,
+            cancellationToken);
+
+        if (workspaceEntity == null)
+            return null;
+        
         try
         {
             // Process statistics
-            var statistics = statisticsBuilder.Build(recipient.Value);
+            var statistics = statisticsBuilder.Build(workspace.Value);
             var jsonStatistics = JsonSerializer.Serialize(
                 statistics,
                 _jsonSerializerOptions);
@@ -39,21 +55,25 @@ public sealed class LogDigestEmailBuilder(
             var chatResponse = await chatService.SendAsync(prompt, cancellationToken);
             var markdownSummary = chatResponse.Text;
 
+            var logDigestEmailTemplate = EmailTemplates.LogDigest(workspaceEntity.Name);
+            
             return new EmailMessageDetails(
-                recipient.Key,
                 null,
-                EmailTemplates.LogDigest.Subject,
+                null,
+                logDigestEmailTemplate.Subject,
                 markdownSummary);
         }
         catch (Exception ex)
         {
-            await Console.Error.WriteLineAsync(ex.Message); 
+            await Console.Error.WriteLineAsync(ex.Message);
+
+            var failedLogDigestEmailTemplate = EmailTemplates.LogDigestFailed(workspaceEntity.Name); 
             
             return new EmailMessageDetails(
-                recipient.Key,
                 null,
-                EmailTemplates.LogDigestFailed.Subject,
-                EmailTemplates.LogDigestFailed.Body);
+                null,
+                failedLogDigestEmailTemplate.Subject,
+                failedLogDigestEmailTemplate.Body);
         }
     }
 }

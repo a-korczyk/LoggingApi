@@ -28,6 +28,20 @@ public sealed class UserRepository(
             x => x.Email == email,
             cancellationToken);
     }
+    
+    public async Task<ICollection<User>> GetByWorkspaceId(
+        Guid workspaceId,
+        Pagination pagination,
+        CancellationToken cancellationToken)
+    {
+        return await dbContext.WorkspaceUsers
+            .Where(x => x.WorkspaceId == workspaceId)
+            .OrderByDescending(x => x.WorkspaceId)
+            .Select(x => x.User)
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .ToListAsync(cancellationToken);
+    }
 
     public async Task AddAsync(User user, CancellationToken cancellationToken)
     {

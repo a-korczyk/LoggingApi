@@ -45,14 +45,14 @@ public static class EmailTemplates
              """
         );
 
-    public static readonly EmailTemplate LogDigest =
+    public static EmailTemplate LogDigest(string workspaceName) =>
         new(
-            "Log Summary (Last 30 Minutes) - LoggingApi",
+            $"{workspaceName} - Log Summary (Last 30 Minutes) - LoggingApi",
             string.Empty);
 
-    public static readonly EmailTemplate LogDigestFailed = 
+    public static EmailTemplate LogDigestFailed(string workspaceName) =>
         new(
-            "Log Summary (Last 30 Minutes) - LoggingApi",
+            $"{workspaceName} - Log Summary (Last 30 Minutes) - LoggingApi",
             $"""
              # Log Summary From The Last 30 Minutes
              
@@ -97,4 +97,22 @@ public static class AuthEmailTemplates
             
             This email was generated automatically by LoggingApi.
             """);
+}
+
+/// <summary>
+/// Provides predefined email templates for workspace related notifications.
+/// </summary>
+public static class WorkspaceEmailTemplates
+{
+    public static EmailTemplate OwnerOfNewWorkspace(string workspaceName) =>
+        new(
+            $"You're now the owner of {workspaceName}  - LoggingApi",
+            $"""
+             # Owner of {workspaceName}
+                    
+             Ownership of {workspaceName} has been transferred to you.
+                    
+                    
+             This email was generated automatically by LoggingApi.
+             """);
 }

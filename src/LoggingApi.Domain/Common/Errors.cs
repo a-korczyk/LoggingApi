@@ -53,6 +53,11 @@ public static class UserErrors
         new(
             "Users.TwoFactorRequired",
             "This action requires 2FA enabled.");
+
+    public static readonly Error WorkspaceOwner =
+        new(
+            "Users.WorkspaceOwner",
+            "User is a workspace owner.");
 }
 
 /// <summary>
@@ -100,6 +105,29 @@ public static class TwoFactorErrors
         new(
             "TwoFactor.InvalidTotpCode",
             "The provided Totp code is invalid.");
+}
+
+public sealed class WorkspaceErrors
+{
+    public static readonly Error NotFound =
+        new(
+            "Workspace.NotFound",
+            "Workspace couldn't be found.");
+    
+    public static readonly Error UserNotFound =
+        new(
+            "Workspace.UserNotFound",
+            "This user couldn't be found.");
+    
+    public static readonly Error UserAlreadyInWorkspace =
+        new(
+            "Workspace.UserAlreadyInWorkspace",
+            "This user is already a member in the workspace.");
+
+    public static readonly Error ActionForbidden =
+        new(
+            "Workspace.ActionForbidden",
+            "This action is forbidden.");
 }
 
 /// <summary>

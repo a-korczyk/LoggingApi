@@ -20,14 +20,22 @@ public sealed record GetLogByIdQuery(
 /// </summary>
 public sealed class GetLogByIdQueryHandler(
     ILogRepository logRepository,
+    IWorkspaceUserRepository workspaceUserRepository,
     ICurrentUser currentUser)
     : IRequestHandler<GetLogByIdQuery, Result<LogResponse>>
 {
     public async Task<Result<LogResponse>> Handle(GetLogByIdQuery request, CancellationToken cancellationToken)
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (log is null)
+            return LogErrors.LogWithIdNotFound;
         
-        if (log == null || currentUser.GetUserId() != log.UserId)
+        bool isMemberOfWorkspace = await workspaceUserRepository.IsMemberAsync(
+            currentUser.GetUserId(),
+            log.WorkspaceId,
+            cancellationToken);
+        
+        if (isMemberOfWorkspace is false)
             return LogErrors.LogWithIdNotFound;
 
         return new LogResponse(

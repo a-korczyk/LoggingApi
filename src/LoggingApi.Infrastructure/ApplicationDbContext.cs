@@ -21,6 +21,10 @@ public class ApplicationDbContext : DbContext
     
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     
+    public DbSet<Workspace> Workspaces => Set<Workspace>();
+    
+    public DbSet<WorkspaceUser> WorkspaceUsers => Set<WorkspaceUser>();
+    
     public DbSet<Log> Logs => Set<Log>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

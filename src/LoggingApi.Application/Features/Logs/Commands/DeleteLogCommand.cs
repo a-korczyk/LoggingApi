@@ -20,6 +20,7 @@ public sealed record DeleteLogCommand(
 public sealed class DeleteLogCommandHandler(
     ILogRepository logRepository,
     ICurrentUser currentUser,
+    IWorkspaceUserRepository workspaceUserRepository, 
     IUnitOfWork unitOfWork,
     ILogDigestQueue digestQueue)
     : IRequestHandler<DeleteLogCommand, Result>
@@ -27,8 +28,15 @@ public sealed class DeleteLogCommandHandler(
     public async Task<Result> Handle(DeleteLogCommand request, CancellationToken cancellationToken)
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
-
-        if (log == null || currentUser.GetUserId() != log.UserId)
+        if (log is null)
+            return LogErrors.LogWithIdNotFound;
+        
+        bool isMemberOfWorkspace = await workspaceUserRepository.IsMemberAsync(
+            currentUser.GetUserId(),
+            log.WorkspaceId,
+            cancellationToken);
+        
+        if (isMemberOfWorkspace is false)
             return LogErrors.LogWithIdNotFound;
 
         logRepository.Delete(log);
@@ -36,7 +44,7 @@ public sealed class DeleteLogCommandHandler(
 
         try {
             await digestQueue.DeleteAsync(
-                currentUser.GetUserEmail(),
+                log.WorkspaceId,
                 log.Id);
         }
         catch (Exception ex)

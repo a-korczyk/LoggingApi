@@ -23,7 +23,7 @@ public class UsersController(IMediator mediator) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> StartDeleteUser(
-        Guid id,
+        [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(
@@ -54,7 +54,7 @@ public class UsersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CompleteDeleteUser(
-        Guid id,
+        [FromRoute] Guid id,
         [FromBody] CompleteDeleteUserCommand request,
         CancellationToken cancellationToken)
     {

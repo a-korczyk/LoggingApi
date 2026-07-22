@@ -17,6 +17,7 @@ namespace LoggingApi.Application.Features.Logs.Commands;
 /// <param name="Title">The log's title.</param>
 /// <param name="Data">Additional custom details.</param>
 public sealed record AddLogCommand(
+    Guid WorkspaceId,
     LogType Type,
     string Title,
     JsonDocument Data) : IRequest<Result<AddLogResponse>>;
@@ -26,6 +27,7 @@ public sealed record AddLogCommand(
 /// </summary>
 public sealed class AddLogCommandHandler(
     ILogRepository logRepository,
+    IWorkspaceUserRepository workspaceUserRepository,
     IUserRepository userRepository,
     ICurrentUser currentUser,
     IUnitOfWork unitOfWork,
@@ -36,12 +38,17 @@ public sealed class AddLogCommandHandler(
     public async Task<Result<AddLogResponse>> Handle(AddLogCommand request, CancellationToken cancellationToken)
     {
         Guid userId = currentUser.GetUserId();
-        string userEmail = currentUser.GetUserEmail();
-        User? user = await userRepository.GetByIdAsync(userId, cancellationToken);
+        User user = (await userRepository.GetByIdAsync(userId, cancellationToken))!;
+
+        if (!await workspaceUserRepository.IsMemberAsync(
+                userId,
+                request.WorkspaceId,
+                cancellationToken))
+            return LogErrors.Forbidden;
         
         Log log = new Log(
+            request.WorkspaceId,
             userId,
-            user!,
             request.Type,
             request.Title,
             request.Data);
@@ -58,7 +65,7 @@ public sealed class AddLogCommandHandler(
                     cancellationToken);
 
             await digestQueue.UpsertAsync(
-                userEmail,
+                log.WorkspaceId,
                 new LogDigestEntry(
                     log.Id,
                     log.Status,
@@ -90,6 +97,9 @@ public sealed class AddLogValidator : AbstractValidator<AddLogCommand>
 {
     public AddLogValidator()
     {
+        RuleFor(x => x.WorkspaceId)
+            .NotEmpty().WithMessage("WorkspaceId must not be empty.");
+            
         RuleFor(command => command.Type)
             .IsInEnum().WithMessage("Type must match LogType enum.");
 

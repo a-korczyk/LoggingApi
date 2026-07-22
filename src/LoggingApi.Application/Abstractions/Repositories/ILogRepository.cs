@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using LoggingApi.Application.Features.Logs.Queries;
 using LoggingApi.Domain.Entities;
 
@@ -35,7 +36,7 @@ public interface ILogRepository
    /// If there are no logs associated with the provided user, or the requested page
    /// contains no logs, then an empty collection is returned.
    /// </remarks>
-   Task<IReadOnlyList<Log>> GetAsync(
+   Task<IReadOnlyList<Log>> GetByWorkspaceIdAsync(
       Guid userId,
       Pagination pagination,
       LogFilters? filters,
@@ -57,7 +58,10 @@ public sealed record Pagination(
    int Page,
    int PageSize)
 {
+   [Range(1, int.MaxValue)] 
    public const int DefaultPage = 1;
+   
+   [Range(1, 100)]
    public const int DefaultPageSize = 20;
 };
 

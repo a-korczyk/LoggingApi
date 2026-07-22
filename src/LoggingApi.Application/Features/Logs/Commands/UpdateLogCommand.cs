@@ -19,6 +19,7 @@ namespace LoggingApi.Application.Features.Logs.Commands;
 /// <param name="Title">The log's new title.</param>
 /// <param name="Data">Updated additional log details.</param>
 public sealed record UpdateLogCommand(
+    Guid WorkspaceId,
     Guid Id,
     LogStatus? Status,
     LogType? Type,
@@ -30,6 +31,7 @@ public sealed record UpdateLogCommand(
 /// </summary>
 public sealed class UpdateLogCommandHandler(
     ILogRepository logRepository,
+    IWorkspaceUserRepository workspaceUserRepository,
     IUnitOfWork unitOfWork,
     ICurrentUser currentUser,
     IUserRepository userRepository,
@@ -40,10 +42,16 @@ public sealed class UpdateLogCommandHandler(
     public async Task<Result> Handle(UpdateLogCommand request, CancellationToken cancellationToken)
     {
         Log? log = await logRepository.GetByIdAsync(request.Id, cancellationToken);
-        
-        if (log == null || currentUser.GetUserId() != log.UserId)
+        if (log is null)
             return LogErrors.LogWithIdNotFound;
         
+        bool isMemberOfWorkspace = await workspaceUserRepository.IsMemberAsync(
+            currentUser.GetUserId(),
+            log.WorkspaceId,
+            cancellationToken);
+        
+        if (isMemberOfWorkspace is false)
+            return LogErrors.LogWithIdNotFound;
         
         log.Update(
             request.Status,
@@ -65,7 +73,7 @@ public sealed class UpdateLogCommandHandler(
                     cancellationToken);
 
             await digestQueue.UpsertAsync(
-                user.Email,
+                log.WorkspaceId,
                 new LogDigestEntry(
                     log.Id,
                     log.Status,

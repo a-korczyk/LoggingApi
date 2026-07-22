@@ -15,6 +15,7 @@ public sealed record StartDeleteUserCommand(
     Guid UserId) : IRequest<Result<StartDeleteUserResponse>>;
 
 public sealed class StartDeleteUserCommandHandler(
+    IWorkspaceRepository workspaceRepository,
     ITwoFactorChallengeRepository twoFactorChallengeRepository,
     ITokenGenerator tokenGenerator,
     IUnitOfWork unitOfWork, 
@@ -34,6 +35,17 @@ public sealed class StartDeleteUserCommandHandler(
         // Check if user has 2FA enabled
         if (user.TwoFactorEnabled is false)
             return UserErrors.TwoFactorRequired;
+
+        var ownedWorkspaces = await workspaceRepository.GetByOwnerUserIdAsync(
+            user.Id,
+            new(
+                Pagination.DefaultPage,
+                Pagination.DefaultPageSize),
+            cancellationToken);
+
+        // Check if user owns any workspaces
+        if (ownedWorkspaces.Any())
+            return UserErrors.WorkspaceOwner;
         
         var existingChallenge = await twoFactorChallengeRepository.GetAsync(user.Id, cancellationToken);
         var twoFactorToken = tokenGenerator.GenerateToken();
@@ -49,7 +61,6 @@ public sealed class StartDeleteUserCommandHandler(
             await twoFactorChallengeRepository.AddAsync(
                 new(
                     user.Id,
-                    user,
                     tokenGenerator.HashToken(twoFactorToken),
                     TwoFactorChallengePurpose.DeleteAccount),
                 cancellationToken);
