@@ -16,7 +16,7 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 
 COPY . /source
 
-WORKDIR /source/src/LoggingApi.Api
+WORKDIR /source/src/Pingr.Api
 
 # This is the architecture you’re building for, which is passed in by the builder.
 # Placing it here allows the previous steps to be cached across architectures.
@@ -53,4 +53,4 @@ COPY --from=build /app .
 # and https://github.com/dotnet/dotnet-docker/discussions/4764
 USER $APP_UID
 
-ENTRYPOINT ["dotnet", "LoggingApi.Api.dll"]
+ENTRYPOINT ["dotnet", "Pingr.Api.dll"]
