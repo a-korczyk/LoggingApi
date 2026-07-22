@@ -1,0 +1,51 @@
+using Pingr.Domain.Entities;
+
+namespace Pingr.Application.Abstractions.Repositories;
+
+/// <summary>
+/// Provides methods for accessing and persisting user data.
+/// </summary>
+public interface IUserRepository
+{
+    /// <summary>
+    /// Retrieves a user by their identifier.
+    /// </summary>
+    /// <param name="id">The identifier of the user.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    /// The user if found; otherwise <c>null</c>.
+    /// </returns>
+    Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    
+    /// <summary>
+    /// Retrieves a user by their email address.
+    /// </summary>
+    /// <param name="email">The email to search for the user by.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    /// The user if found; otherwise <c>null</c>.
+    /// </returns>
+    Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
+    
+    /// <summary>
+    /// Retrieves all users that are members of a workspace.
+    /// </summary>
+    /// <param name="pagination">The pagination settings.</param>
+    Task<ICollection<User>> GetByWorkspaceId(
+        Guid workspaceId,
+        Pagination pagination,
+        CancellationToken cancellationToken);
+    
+    /// <summary>
+    /// Inserts a new user.
+    /// </summary>
+    /// <param name="user">The user to insert.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    Task AddAsync(User user, CancellationToken cancellationToken);
+    
+    /// <summary>
+    /// Marks the provided user as deleted and caches the user's identifer
+    /// as recently deleted.
+    /// </summary>
+    void Delete(User user);
+}   
